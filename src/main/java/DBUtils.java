@@ -3,7 +3,6 @@
  * License: MIT License
  */
 
-package edu.antevortadb.utils;
 
 import org.sqlite.SQLiteConfig;
 

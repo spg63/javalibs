@@ -3,8 +3,6 @@
  * License: MIT License
  */
 
-package edu.antevortadb.utils;
-
 import com.google.common.base.Stopwatch;
 
 import java.util.concurrent.TimeUnit;

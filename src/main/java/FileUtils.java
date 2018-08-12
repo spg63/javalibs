@@ -3,8 +3,6 @@
  * License: MIT License
  */
 
-package edu.antevortadb.utils;
-
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;

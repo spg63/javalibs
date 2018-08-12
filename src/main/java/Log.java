@@ -112,7 +112,4 @@ public class Log{
             System.out.println("*** writeErrToFile failed ***");
         }
     }
-
-
-
 }
