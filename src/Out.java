@@ -1,13 +1,24 @@
+/*
+ * Copyright (c) 2018 Sean Grimes. All rights reserved.
+ * License: MIT License
+ */
+
+package edu.antevortadb.utils;
+
+import com.google.common.base.Stopwatch;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Sean Grimes, spg63@cs.drexel.edu
  * @since 6/1/15
  */
+@SuppressWarnings({"unused", "SpellCheckingInspection", "WeakerAccess"})
 public class Out implements java.io.Serializable{
     private static final long serialVersionUID = 80085L;
     private static volatile Out _instance;
 
-    private Out(){
-    }
+    private Out(){ }
 
     public static Out get(){
         if(_instance == null){
@@ -35,11 +46,13 @@ public class Out implements java.io.Serializable{
     public void write_err(Object msg){
         System.err.print(msg);
     }
-
-
-
-
-
-
-
+    public String timer_millis(Stopwatch sw){
+        return sw.elapsed(TimeUnit.MILLISECONDS) + " milliseconds";
+    }
+    public String timer_secs(Stopwatch sw){
+        return sw.elapsed(TimeUnit.SECONDS) + " seconds";
+    }
+    public String timer_mins(Stopwatch sw){
+        return sw.elapsed(TimeUnit.MINUTES) + " minutes";
+    }
 }
