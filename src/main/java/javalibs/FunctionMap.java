@@ -1,3 +1,5 @@
+package javalibs;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +14,7 @@ public class FunctionMap{
         this.map_of_functions = new HashMap<>();
     }
 /*
-    public void addFunction(String function_name, Functor function){
+    public void addFunction(String function_name, javalibs.Functor function){
         this.map_of_functions.put(function_name, () -> {
             function();
         });

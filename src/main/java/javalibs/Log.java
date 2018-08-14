@@ -1,3 +1,5 @@
+package javalibs;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class Log{
             this.logFile = file;
         }
         else{
-            System.err.println("*** Log file name must be greater than 0 chars ***");
+            System.err.println("*** javalibs.Log file name must be greater than 0 chars ***");
             System.err.println("*** Logs will be stored in \"log.txt\" ***");
         }
     }

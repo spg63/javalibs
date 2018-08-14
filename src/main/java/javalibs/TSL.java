@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2018 Sean Grimes. All rights reserved.
+package javalibs;/*
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
  * License: MIT License
  */
 
@@ -126,7 +126,7 @@ public class TSL extends Thread{
     }
 
     /**
-     * Log info
+     * javalibs.Log info
      * @param str The log message
      */
     public void info(Object str){
@@ -142,7 +142,7 @@ public class TSL extends Thread{
     }
 
     /**
-     * Log warnings
+     * javalibs.Log warnings
      * @param str The log message
      */
     public void warn(Object str){
@@ -158,7 +158,7 @@ public class TSL extends Thread{
     }
 
     /**
-     * Log errors
+     * javalibs.Log errors
      * @param str The log message
      */
     public void err(Object str){
@@ -186,7 +186,7 @@ public class TSL extends Thread{
     }
 
     /**
-     * Log an exception
+     * javalibs.Log an exception
      * @param e The exception to be logged
      */
     public void exception(Exception e){

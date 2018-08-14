@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2018 Sean Grimes. All rights reserved.
+package javalibs;/*
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
  * License: MIT License
  */
 
@@ -62,11 +62,11 @@ public class DBUtils {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                     // Die unchecked
-                    throw new RuntimeException("DBUtils.connect failure");
+                    throw new RuntimeException("javalibs.DBUtils.connect failure");
                 }
             }
             // Die unchecked
-            throw new RuntimeException("DBUtils.connect failure");
+            throw new RuntimeException("javalibs.DBUtils.connect failure");
         }
         return conn;
     }
@@ -78,7 +78,7 @@ public class DBUtils {
         catch(SQLException e){
             e.printStackTrace();
             // Die unchecked
-            throw new RuntimeException("DBUtils.disconnect failure");
+            throw new RuntimeException("javalibs.DBUtils.disconnect failure");
         }
     }
 
@@ -204,7 +204,7 @@ public class DBUtils {
         catch(SQLException e){
             e.printStackTrace();
             // Die unchecked
-            throw new RuntimeException("DBUtils.select failure");
+            throw new RuntimeException("javalibs.DBUtils.select failure");
         }
 
         return rs;
@@ -221,7 +221,7 @@ public class DBUtils {
         catch(SQLException e){
             e.printStackTrace();
             // Die unchecked
-            throw new RuntimeException("DBUtils.closeResultSet failure");
+            throw new RuntimeException("javalibs.DBUtils.closeResultSet failure");
         }
     }
 
@@ -233,7 +233,7 @@ public class DBUtils {
      * @return A list of ResultSet objects if the selections were successful
      */
     public List<ResultSet> selectAll(Connection conn, List<String> SQLStatements){
-        TSL.get().warn("DBUtils.selectAll called; unoptimized.");
+        TSL.get().warn("javalibs.DBUtils.selectAll called; unoptimized.");
         List<ResultSet> results = new ArrayList<>();
         for(String sql : SQLStatements)
             results.add(select(conn, sql));
@@ -254,7 +254,7 @@ public class DBUtils {
         catch(SQLException e){
             e.printStackTrace();
             // Die unchecked
-            throw new RuntimeException("DBUtils.executeBatchUpdate failure");
+            throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
         }
     }
 
@@ -284,9 +284,9 @@ public class DBUtils {
             }
             catch(SQLException ex){
                 ex.printStackTrace();
-                throw new RuntimeException("DBUtils.executeBatchUpdate failure");
+                throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
             }
-            throw new RuntimeException("DBUtils.executeBatchUpdate failure");
+            throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
         }
         finally{
             // stmt should have been closed in stmtExecuteBatch
@@ -296,7 +296,7 @@ public class DBUtils {
                 }
                 catch(SQLException e){
                     e.printStackTrace();
-                    throw new RuntimeException("DBUtils.executeBatchUpdate failure");
+                    throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
                 }
             }
             try {
@@ -305,7 +305,7 @@ public class DBUtils {
             }
             catch(SQLException ex){
                 ex.printStackTrace();
-                throw new RuntimeException("DBUtils.executeBatchUpdate failure");
+                throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
             }
         }
     }
@@ -323,7 +323,7 @@ public class DBUtils {
         }
         catch(SQLException e){
             e.printStackTrace();
-            throw new RuntimeException("DBUtils.executeGenericUpdate failure");
+            throw new RuntimeException("javalibs.DBUtils.executeGenericUpdate failure");
         }
     }
 
@@ -340,7 +340,7 @@ public class DBUtils {
         }
         catch(SQLException e){
             e.printStackTrace();
-            throw new RuntimeException("DBUtils.executeGenericUpdate failure for: " + SQLStatement);
+            throw new RuntimeException("javalibs.DBUtils.executeGenericUpdate failure for: " + SQLStatement);
         }
         finally{
             if(stmt != null) {
@@ -349,7 +349,7 @@ public class DBUtils {
                 }
                 catch(SQLException e){
                     e.printStackTrace();
-                    throw new RuntimeException("DBUtils.executeGenericUpdate failure");
+                    throw new RuntimeException("javalibs.DBUtils.executeGenericUpdate failure");
                 }
             }
         }

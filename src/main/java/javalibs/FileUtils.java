@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2018 Sean Grimes. All rights reserved.
+package javalibs;/*
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
  * License: MIT License
  */
 
@@ -26,7 +26,7 @@ public class FileUtils{
 
     /**
      * Get an instance
-     * @return FileUtils object
+     * @return javalibs.FileUtils object
      */
     public static FileUtils get(){
         if(_instance == null){
@@ -103,7 +103,7 @@ public class FileUtils{
             out.writeln_err(filepath + " not found.");
         }
         catch(IOException e){
-            out.writeln_err("IOException in FileUtils.readFullFile");
+            out.writeln_err("IOException in javalibs.FileUtils.readFullFile");
         }
         finally{
             if(br != null){
@@ -111,7 +111,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | FileUtils.readFullFile");
+                    out.writeln_err("Couldn't close the br | javalibs.FileUtils.readFullFile");
                 }
             }
         }
@@ -144,7 +144,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | FileUtils.readLineByLine");
+                    out.writeln_err("Couldn't close the br | javalibs.FileUtils.readLineByLine");
                 }
             }
         }

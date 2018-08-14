@@ -1,6 +1,7 @@
+package javalibs;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * @author Sean Grimes, spg63@cs.drexel.edu

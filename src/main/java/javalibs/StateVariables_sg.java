@@ -1,3 +1,5 @@
+package javalibs;
+
 /**
  * @author Sean Grimes, spg63@cs.drexel.edu
  * @since 6/1/15
@@ -8,7 +10,7 @@ public class StateVariables_sg{
 
     /**
      * Internal variable used when I'm checking the code of the classes
-     * aggregated by UserUtils, as well as DirWatcher + FileHasher
+     * aggregated by UserUtils, as well as javalibs.DirWatcher + javalibs.FileHasher
      */
     public static boolean debug_lib = false;
 

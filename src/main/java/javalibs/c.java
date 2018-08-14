@@ -1,4 +1,4 @@
-/**
+package javalibs; /**
  *
  * Getting around some boilerplate
  *
@@ -52,7 +52,7 @@ public final class c implements java.io.Serializable{
 			logFile = file;
 		}
 		else{
-			writeln_err(" *** Log file name must be greater than 0 chars ***");
+			writeln_err(" *** javalibs.Log file name must be greater than 0 chars ***");
 			writeln_err(" *** logs will be stored in \"logger.txt\" *** ");
 		}
 	}
@@ -179,7 +179,7 @@ public final class c implements java.io.Serializable{
 	
 	
 	/*
-	 * Console Input / Out
+	 * Console Input / javalibs.Out
 	 */
 	public static void writeln(Object msg){
 		System.out.println(msg);
@@ -351,7 +351,7 @@ public final class c implements java.io.Serializable{
 				writeln("Wez maded sum new dir(z), cai haz sum milks now?");
 		}
 	}
-} // Class 'c'
+} // Class 'javalibs.c'
 
 
 

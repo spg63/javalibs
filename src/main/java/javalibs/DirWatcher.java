@@ -1,3 +1,5 @@
+package javalibs;
+
 import java.nio.file.*;
 
 /**
@@ -52,7 +54,7 @@ public class DirWatcher{
     /**
      * Watches the directory specified at instantiation
      * Will hash any new or modified files
-     * Log format: filename: hash string
+     * javalibs.Log format: filename: hash string
      * Will not delete old hashes for modified files (yet...)
      */
     // NOTE: Lambda version, see watchAndPrintHash for anon-function version
@@ -71,7 +73,7 @@ public class DirWatcher{
                     c.log(hash_str);
                 }
             }
-            c.log("Log thread killed");
+            c.log("javalibs.Log thread killed");
         }).start();
     }
 
