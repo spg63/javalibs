@@ -6,6 +6,7 @@ package javalibs;/*
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -242,6 +243,55 @@ public class TSL extends Thread{
     public void logAndKill(Exception e){
         exception(e);
         logAndKill();
+    }
+
+    /**
+     * This function will automatically log and INFO message for the calling class name, function name, and
+     * line number of the function call. It also accepts an optional log message. Function is useful to see
+     * where execution may have stopped, or where a specific area of interest shows up without forcing the
+     * user to add line specific or message specific messages to the logger call.
+     * @param log_message Message to add to the Class name, function name, and line number
+     */
+    public void autoLog(String log_message){
+        // Get all stack frame for the calling thead
+        StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
+
+        // Note: Depending on the JVM the frame index could be different. However, if we find the frame
+        // immediately after the frame for this function, that *should* give the frame for the calling
+        // function.
+        int thisFunctionFrameIndex = -1;
+        String thisFunctionName = "autoLog";
+        for(int i = 0; i < stackFrames.length; ++i)
+            if(thisFunctionName.equals(stackFrames[i].getMethodName()))
+                thisFunctionFrameIndex = i;
+
+        // Couldn't find the this function in the stack trace. Not sure why, but return and let them know.
+        if(thisFunctionFrameIndex == -1) {
+            err(thisFunctionName + " unable to determine calling function name & line number");
+            return;
+        }
+
+        int frameOfInterest = thisFunctionFrameIndex + 1;
+        if(frameOfInterest >= stackFrames.length){
+            err(thisFunctionName + " calling function frame out of range, unable to determine calling function name & line number");
+            return;
+        }
+
+        StackTraceElement elementOfInterest = stackFrames[frameOfInterest];
+
+        info("\n\t *** AUTOLOGGED *** \n" +
+                "\t Class name:      " + elementOfInterest.getClassName() + "\n" +
+                "\t Function name:   " + elementOfInterest.getMethodName() + "\n" +
+                "\t Line number:     " + elementOfInterest.getLineNumber() + "\n" +
+                "\t Log message:     " + log_message);
+
+    }
+
+    /**
+     * See full description above: autoLog call without log message
+     */
+    public void autoLog(){
+        autoLog("");
     }
 
     private String time_str(){

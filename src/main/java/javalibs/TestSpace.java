@@ -19,6 +19,9 @@ class TestSpace implements Functor{
     }
 
     public static void main(String[] args) throws Exception {
+        notMuchOfAFunction();
+        TSL.get().logAndKill();
+
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {
             testThis();
@@ -26,5 +29,9 @@ class TestSpace implements Functor{
 
         Functor method = map.get("test");
         method.execute();
+    }
+
+    public static void notMuchOfAFunction(){
+        TSL.get().autoLog("Message");
     }
 }
