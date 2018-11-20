@@ -8,30 +8,28 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CSVDataNormalizer {
     private String csvPath;
-    private List<String> columns;
+    private List<String> columnsToNormalize;
     private Map<String, List<String>> columnsWithLinkings;
     private boolean linkingsExist = false;
-    private ArrayList<CSVRecord> allRecords = new ArrayList();
-    private ArrayList<String> allHeaders = null;
+    private List<CSVRecord> allRecords = new ArrayList();
+    private List<String> allHeaders = null;
+    private Map<String, List<String>> normalizedValues = new HashMap();
     private TSL log_ = TSL.get();
 
     /**
      *
      * @param pathToCSV The path to the CSV file
      * @param columns A list of column names that need to be normalized. This assumes that no
-     *                columns are linked. I.e. min and max values for each item in a column will
+     *                columnsToNormalize are linked. I.e. min and max values for each item in a column will
      *                come from the column they're already in
      */
     public CSVDataNormalizer(String pathToCSV, List<String> columns){
         this.csvPath = pathToCSV;
-        this.columns = columns;
+        this.columnsToNormalize = columns;
         readCSV();
     }
 
@@ -41,7 +39,7 @@ public class CSVDataNormalizer {
      * -- otherwise, if there exists no budget that is greater than revenue, a revenue value with
      * a higher non-normalized value may be have a smaller normalized value.
      * @param pathToCSV The path to the CSV file
-     * @param columnsWithLinkings A map of column names that map to a list of columns that are
+     * @param columnsWithLinkings A map of column names that map to a list of columnsToNormalize that are
      *                            linked together when determining max and min values for
      *                            normalization
      */
@@ -63,7 +61,7 @@ public class CSVDataNormalizer {
     }
 
     /**
-     * Normalized the columns and saves to a new CSV file
+     * Normalized the columnsToNormalize and saves to a new CSV file
      * @param outputPath The path to the location for the new file
      */
     public void normalizeAndSave(String outputPath){
@@ -75,18 +73,30 @@ public class CSVDataNormalizer {
     }
 
     private void normalizeWithoutLinkings(){
-        for(String col : this.columns){
+        for(String col : this.columnsToNormalize){
             List<Double> minMax = getMaxMinFromCol(col);
             double max = minMax.get(0);
             double min = minMax.get(1);
 
             // Now normalize each value
             for(CSVRecord record : this.allRecords) {
+                System.out.println("Record num: " + record.getRecordNumber());
+
                 double curVal = NumUtils.getDouble(record.get(col));
-                double normalizedVal = (curVal - min) / (max - min);
-                if(normalizedVal > 1.0 || normalizedVal < 0.0)
-                    log_.logAndKill("normalizedVal error in CSVDataNormalizer: " + normalizedVal);
+                double normalizedVal = NumUtils.normalizeBetweenZeroOne(min, max, curVal);
+                if(normalizedVal > 1.0){
+                    log_.warn("normalizedVal greater than 1.0: " + normalizedVal + " from curVal: "
+                            + curVal + " setting normalizedVal to 1.");
+                    normalizedVal = 1.0;
+                }
+                else if(normalizedVal < 0.0){
+                    log_.warn("normalizedVal less than 0: " + normalizedVal + " from curVal: "
+                            + curVal + " setting normalizedVal to 0.");
+                    normalizedVal = 0.0;
+                }
+
             }
+            System.exit(0);
         }
     }
 
@@ -132,10 +142,13 @@ public class CSVDataNormalizer {
 
             // Get all headers in the CSV file so they can be used later when writing the file
             this.allHeaders = new ArrayList(parser.getHeaderMap().keySet());
+            Map<String, Integer> head = parser.getHeaderMap();
+            log_.info(head);
+            System.exit(0);
+
 
             // Add them to the records list for later use
-            for(CSVRecord record : parser)
-                allRecords.add(record);
+            this.allRecords = parser.getRecords();
 
             parser.close();
         }

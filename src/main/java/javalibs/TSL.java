@@ -1,25 +1,22 @@
-package javalibs;/*
- * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
- * License: MIT License
- */
-
+package javalibs;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
  * @author Sean Grimes, spg63@cs.drexel.edu
  * @author Andrew W.E. McDonald
  * @since 6/6/15
+ * License: MIT License
  */
 @SuppressWarnings({"unused", "WeakerAccess", "SpellCheckingInspection"})
 public class TSL extends Thread{
-    // NOTE: Using an enum here would be ideal, but enums in java don't appear to correspond to int values
-    // which means they can't be added to strings. So, without wasting an hour figuring out the "right" way to
-    // do this, I'm just going to define some ints.
+    // NOTE: Using an enum here would be ideal, but enums in java don't appear to correspond to
+    // int values which means they can't be added to strings. So, without wasting an hour figuring
+    // out the "right" way to do this, I'm just going to define some ints.
     private static final Integer INFO       = 0;
     private static final Integer WARN       = 1;
     private static final Integer ERROR      = 2;
@@ -246,26 +243,28 @@ public class TSL extends Thread{
     }
 
     /**
-     * This function will automatically log and INFO message for the calling class name, function name, and
-     * line number of the function call. It also accepts an optional log message. Function is useful to see
-     * where execution may have stopped, or where a specific area of interest shows up without forcing the
-     * user to add line specific or message specific messages to the logger call.
+     * This function will automatically log and INFO message for the calling class name, function
+     * name, and line number of the function call. It also accepts an optional log message. Function
+     * is useful to see where execution may have stopped, or where a specific area of interest shows
+     * up without forcing the user to add line specific or message specific messages to the logger
+     * call.
      * @param log_message Message to add to the Class name, function name, and line number
      */
     public void autoLog(String log_message){
         // Get all stack frame for the calling thead
         StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
 
-        // Note: Depending on the JVM the frame index could be different. However, if we find the frame
-        // immediately after the frame for this function, that *should* give the frame for the calling
-        // function.
+        // Note: Depending on the JVM the frame index could be different. However, if we find the
+        // frame immediately after the frame for this function, that *should* give the frame for
+        // the calling function.
         int thisFunctionFrameIndex = -1;
         String thisFunctionName = "autoLog";
         for(int i = 0; i < stackFrames.length; ++i)
             if(thisFunctionName.equals(stackFrames[i].getMethodName()))
                 thisFunctionFrameIndex = i;
 
-        // Couldn't find the this function in the stack trace. Not sure why, but return and let them know.
+        // Couldn't find the this function in the stack trace. Not sure why, but return and let
+        // them know.
         if(thisFunctionFrameIndex == -1) {
             err(thisFunctionName + " unable to determine calling function name & line number");
             return;
