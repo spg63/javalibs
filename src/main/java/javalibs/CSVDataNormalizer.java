@@ -16,9 +16,11 @@ public class CSVDataNormalizer {
     private Map<String, List<String>> columnsWithLinkings;
     private boolean linkingsExist = false;
     private List<CSVRecord> allRecords = new ArrayList();
-    private List<String> allHeaders = null;
+    private Map<String, Integer> headerMap = new HashMap();
     private Map<String, List<String>> normalizedValues = new HashMap();
     private TSL log_ = TSL.get();
+    private Map<String, Pair<Double, Double>> colsToMaxMinPairs = new HashMap();
+    private Map<Integer, String> colNumToName = new HashMap();
 
     /**
      *
@@ -31,6 +33,7 @@ public class CSVDataNormalizer {
         this.csvPath = pathToCSV;
         this.columnsToNormalize = columns;
         readCSV();
+        getAllMinMaxValues();
     }
 
     /**
@@ -48,6 +51,7 @@ public class CSVDataNormalizer {
         this.columnsWithLinkings = columnsWithLinkings;
         this.linkingsExist = true;
         readCSV();
+        getAllMinMaxValues();
     }
 
     /**
@@ -73,10 +77,17 @@ public class CSVDataNormalizer {
     }
 
     private void normalizeWithoutLinkings(){
+
+        for(CSVRecord rec : this.allRecords){
+
+        }
+
+        
         for(String col : this.columnsToNormalize){
-            List<Double> minMax = getMaxMinFromCol(col);
-            double max = minMax.get(0);
-            double min = minMax.get(1);
+            Pair<Double, Double> maxMin = getMaxMinFromCol(col);
+            this.colsToMaxMinPairs.put(col, maxMin);
+            double max = maxMin.left();
+            double min = maxMin.right();
 
             // Now normalize each value
             for(CSVRecord record : this.allRecords) {
@@ -100,8 +111,19 @@ public class CSVDataNormalizer {
         }
     }
 
-    // Why doesn't java have a Pair class?
-    private List<Double> getMaxMinFromCol(String columnName) {
+    private void getAllMinMaxValues(){
+        if(this.linkingsExist){
+            // Go through all of the columns that need to be normalized
+            for(String column : this.columnsWithLinkings.keySet())
+                this.colsToMaxMinPairs.put(column, getMaxMinFromLinkedColumns(column));
+        }
+        else {
+            for (String col : this.columnsToNormalize)
+                this.colsToMaxMinPairs.put(col, getMaxMinFromCol(col));
+        }
+    }
+
+    private Pair getMaxMinFromCol(String columnName) {
         double max = Double.MIN_VALUE;
         double min = Double.MAX_VALUE;
         for(CSVRecord record : this.allRecords){
@@ -112,10 +134,10 @@ public class CSVDataNormalizer {
             if(val < min) min = val;
         }
 
-        return Arrays.asList(max, min);
+        return new Pair(max, min);
     }
 
-    private List<Double> getMaxMinFromLinkedColumns(String columnName) {
+    private Pair getMaxMinFromLinkedColumns(String columnName) {
         List<String> cols = this.columnsWithLinkings.get(columnName);
         // Also need to look at the primary column name
         cols.add(columnName);
@@ -123,12 +145,12 @@ public class CSVDataNormalizer {
         double min = Double.MAX_VALUE;
 
         for(String col : cols){
-            List<Double> maxMin = getMaxMinFromCol(col);
-            if(maxMin.get(0) > max) max = maxMin.get(0);
-            if(maxMin.get(1) < min) min = maxMin.get(1);
+            Pair<Double, Double> maxMin = getMaxMinFromCol(col);
+            if(maxMin.left() > max) max = maxMin.left();
+            if(maxMin.right() < min) min = maxMin.right();
         }
 
-        return Arrays.asList(max, min);
+        return new Pair(max, min);
     }
 
     private void readCSV(){
@@ -141,19 +163,24 @@ public class CSVDataNormalizer {
             );
 
             // Get all headers in the CSV file so they can be used later when writing the file
-            this.allHeaders = new ArrayList(parser.getHeaderMap().keySet());
-            Map<String, Integer> head = parser.getHeaderMap();
-            log_.info(head);
-            System.exit(0);
-
+            this.headerMap = parser.getHeaderMap();
 
             // Add them to the records list for later use
             this.allRecords = parser.getRecords();
 
             parser.close();
+
+            reverseHeaderMap();
         }
         catch(IOException e){
             log_.logAndKill(e);
         }
+    }
+
+    // NOTE: This works because I know there are no repeat values in the hashmap. This is not a
+    // generalizable solution.
+    private void reverseHeaderMap(){
+        for(String colName : this.headerMap.keySet())
+            this.colNumToName.put(this.headerMap.get(colName), colName);
     }
 }

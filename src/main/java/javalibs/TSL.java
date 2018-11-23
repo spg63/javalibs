@@ -4,6 +4,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
@@ -193,17 +194,19 @@ public class TSL extends Thread{
         e.printStackTrace(pw);
         String trace = sw.toString();
         exception("\n" + trace);
+        pw.close();
     }
 
     /**
-     * Shutdown the logger, thread will sleep for 500ms to allow proper flushing
+     * Shutdown the logger, thread will sleep for 1000ms to allow proper flushing
+     * NOTE: This does not kill the program, it just shutsdown the logger
      */
     public void shutDown() {
         shuttingDown = true;
         try {
             itemsToLog.put(SHUTDOWN_REQ);
-            // Force a pause of the main thread to give the logger thread a change to write all data to the
-            // file system
+            // Force a pause of the main thread to give the logger thread a change to write all
+            // data to the file system
             Thread.sleep(1000);
         }
         catch(InterruptedException e){
@@ -212,9 +215,9 @@ public class TSL extends Thread{
     }
 
     /**
-     * Shutdown the logger, sleep for half a second to allow the logger to finish flushing to disk then kill
-     * the program
-     * with exit code 6
+     * Shutdown the logger, sleep for a second to allow the logger to finish flushing to disk then
+     * kill the program with exit code 6
+     * NOTE: This traps the calling thread!
      */
     public void logAndKill(){
         shuttingDown = true;
@@ -243,11 +246,12 @@ public class TSL extends Thread{
     }
 
     /**
-     * This function will automatically log and INFO message for the calling class name, function
+     * This function will automatically log an INFO message for the calling class name, function
      * name, and line number of the function call. It also accepts an optional log message. Function
      * is useful to see where execution may have stopped, or where a specific area of interest shows
      * up without forcing the user to add line specific or message specific messages to the logger
      * call.
+     * NOTE: It's not a particularily fast function to call
      * @param log_message Message to add to the Class name, function name, and line number
      */
     public void autoLog(String log_message){
@@ -298,7 +302,8 @@ public class TSL extends Thread{
         int hour = ldt.getHour();
         int min = ldt.getMinute();
         int sec = ldt.getSecond();
-        int milli = (ldt.getNano())/(1000000);
+        //int milli = (ldt.getNano())/(1000000);
+        long milli = TimeUnit.NANOSECONDS.toMillis(ldt.getNano());
 
         String hour_s = hour < 10 ? ("0" + hour) : Integer.toString(hour);
         String min_s = min < 10 ? ("0" + min) : Integer.toString(min);
@@ -309,7 +314,7 @@ public class TSL extends Thread{
         else if(milli < 10)
             mil_s = "00" + milli;
         else
-            mil_s = Integer.toString(milli);
+            mil_s = Long.toString(milli);
 
         return "("+hour_s+":"+min_s+":"+sec_s+"."+mil_s+") > ";
     }
