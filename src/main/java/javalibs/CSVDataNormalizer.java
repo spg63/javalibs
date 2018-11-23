@@ -3,8 +3,10 @@ package javalibs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,23 +19,39 @@ public class CSVDataNormalizer {
     private boolean linkingsExist = false;
     private List<CSVRecord> allRecords = new ArrayList();
     private Map<String, Integer> headerMap = new HashMap();
-    private Map<String, List<String>> normalizedValues = new HashMap();
     private TSL log_ = TSL.get();
     private Map<String, Pair<Double, Double>> colsToMaxMinPairs = new HashMap();
     private Map<Integer, String> colNumToName = new HashMap();
+    private int numCols = 0;
+    private String[] headersInOrder;
+    private String savePath;
 
     /**
      *
      * @param pathToCSV The path to the CSV file
      * @param columns A list of column names that need to be normalized. This assumes that no
-     *                columnsToNormalize are linked. I.e. min and max values for each item in a column will
-     *                come from the column they're already in
+     *                columns are dependent. I.e. min and max values for each item in a
+     *                column will come from the column they're already in
      */
     public CSVDataNormalizer(String pathToCSV, List<String> columns){
         this.csvPath = pathToCSV;
         this.columnsToNormalize = columns;
         readCSV();
         getAllMinMaxValues();
+        this.savePath = pathToCSV;
+    }
+
+    /**
+     * See above for full description
+     * @param existingCSV The path to the CSV file
+     * @param savePath Path to save the normalized CSV
+     * @param columns A list of column names that need to be normalized. This assumes that no
+     *                columns are dependent. I.e. min and max values for each item in a column
+     *                will come from the column they're already in
+     */
+    public CSVDataNormalizer(String existingCSV, String savePath, List<String> columns){
+        this(existingCSV, columns);
+        this.savePath = savePath;
     }
 
     /**
@@ -42,80 +60,94 @@ public class CSVDataNormalizer {
      * -- otherwise, if there exists no budget that is greater than revenue, a revenue value with
      * a higher non-normalized value may be have a smaller normalized value.
      * @param pathToCSV The path to the CSV file
-     * @param columnsWithLinkings A map of column names that map to a list of columnsToNormalize that are
-     *                            linked together when determining max and min values for
+     * @param columnsWithLinkings A map of column names that map to a list of columns that
+     *                            are linked together when determining max and min values for
      *                            normalization
      */
     public CSVDataNormalizer(String pathToCSV, Map<String, List<String>> columnsWithLinkings){
         this.csvPath = pathToCSV;
         this.columnsWithLinkings = columnsWithLinkings;
+        this.columnsToNormalize = new ArrayList();
         this.linkingsExist = true;
         readCSV();
         getAllMinMaxValues();
+        this.savePath = pathToCSV;
     }
 
     /**
-     * Will perform data normalization
+     * See above for full description.
+     * @param existingCSV Path to the existing CSV file
+     * @param savePath Path to save the normalized CSV
+     * @param columnsWithLinkings Map of column names that map to a list of columns
+     *                            that are linked together when determining max and min values
+     *                            for normalization
      */
+    public CSVDataNormalizer(String existingCSV, String savePath,
+                             Map<String, List<String>> columnsWithLinkings) {
+        this(existingCSV, columnsWithLinkings);
+        this.savePath = savePath;
+    }
+
     public void normalize(){
-        if(this.linkingsExist)
-            normalizeWithLinkings();
-        else
-            normalizeWithoutLinkings();
-    }
+        BufferedWriter bw = null;
+        CSVPrinter printer = null;
 
-    /**
-     * Normalized the columnsToNormalize and saves to a new CSV file
-     * @param outputPath The path to the location for the new file
-     */
-    public void normalizeAndSave(String outputPath){
-
-    }
-
-    private void normalizeWithLinkings(){
-
-    }
-
-    private void normalizeWithoutLinkings(){
-
-        for(CSVRecord rec : this.allRecords){
-
+        try {
+            bw = Files.newBufferedWriter(Paths.get(this.savePath));
+            printer = new CSVPrinter(bw, CSVFormat.DEFAULT
+                    .withHeader(this.headersInOrder));
+        }
+        catch(IOException e){
+            log_.logAndKill(e);
         }
 
-        
-        for(String col : this.columnsToNormalize){
-            Pair<Double, Double> maxMin = getMaxMinFromCol(col);
-            this.colsToMaxMinPairs.put(col, maxMin);
-            double max = maxMin.left();
-            double min = maxMin.right();
+        for(CSVRecord rec : this.allRecords){
+            List<String> writerCells = new ArrayList<>();
+            for(int i = 0; i < this.numCols; ++i){
+                String colName = this.colNumToName.get(i);
+                if(columnsToNormalize.contains(colName)){
+                    double curVal = NumUtils.getDouble(rec.get(colName));
+                    Pair<Double, Double> maxMin = this.colsToMaxMinPairs.get(colName);
+                    double normal = NumUtils.normalizeBetweenZeroOne(maxMin.right(),
+                            maxMin.left(), curVal);
+                    if(normal > 1.0){
+                        log_.warn("Normalized value greater than 1.0: " + normal + " from curVal: "
+                                + curVal + " setting normal to 1.");
+                        normal = 1.0;
+                    }
+                    else if(normal < 0.0){
+                        log_.warn("Normalized value less than 0.0: " + normal + " from curVal : "
+                                +  curVal + " setting normal to 0.");
+                        normal = 0.0;
+                    }
 
-            // Now normalize each value
-            for(CSVRecord record : this.allRecords) {
-                System.out.println("Record num: " + record.getRecordNumber());
-
-                double curVal = NumUtils.getDouble(record.get(col));
-                double normalizedVal = NumUtils.normalizeBetweenZeroOne(min, max, curVal);
-                if(normalizedVal > 1.0){
-                    log_.warn("normalizedVal greater than 1.0: " + normalizedVal + " from curVal: "
-                            + curVal + " setting normalizedVal to 1.");
-                    normalizedVal = 1.0;
+                    writerCells.add(Double.toString(normal));
                 }
-                else if(normalizedVal < 0.0){
-                    log_.warn("normalizedVal less than 0: " + normalizedVal + " from curVal: "
-                            + curVal + " setting normalizedVal to 0.");
-                    normalizedVal = 0.0;
-                }
-
+                else
+                    writerCells.add(rec.get(i));
             }
-            System.exit(0);
+            try {
+                printer.printRecord(writerCells.toArray());
+            }
+            catch(IOException e){
+                log_.logAndKill(e);
+            }
+        }
+        try {
+            printer.flush();
+        }
+        catch(IOException e){
+            log_.logAndKill(e);
         }
     }
 
     private void getAllMinMaxValues(){
         if(this.linkingsExist){
             // Go through all of the columns that need to be normalized
-            for(String column : this.columnsWithLinkings.keySet())
+            for(String column : this.columnsWithLinkings.keySet()) {
+                this.columnsToNormalize.add(column);
                 this.colsToMaxMinPairs.put(column, getMaxMinFromLinkedColumns(column));
+            }
         }
         else {
             for (String col : this.columnsToNormalize)
@@ -180,7 +212,14 @@ public class CSVDataNormalizer {
     // NOTE: This works because I know there are no repeat values in the hashmap. This is not a
     // generalizable solution.
     private void reverseHeaderMap(){
-        for(String colName : this.headerMap.keySet())
+        for(String colName : this.headerMap.keySet()) {
             this.colNumToName.put(this.headerMap.get(colName), colName);
+            ++this.numCols;
+        }
+
+        this.headersInOrder = new String[this.numCols];
+
+        for(int i = 0; i < this.numCols; ++i)
+            this.headersInOrder[i] = this.colNumToName.get(i);
     }
 }
