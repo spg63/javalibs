@@ -24,6 +24,7 @@ public class TSL extends Thread{
     private static final Integer EXCEPTION  = 3;
 
     private static volatile TSL _instance;
+    private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
     public static boolean LOG_INFO = true;
     public static boolean LOG_WARN = true;
     public static boolean LOG_TO_CONSOLE = true;
@@ -82,7 +83,7 @@ public class TSL extends Thread{
                 else{
                     pw = new PrintWriter(
                             new BufferedWriter(
-                                    new FileWriter("logs/tslog.log")));
+                                    new FileWriter(reWriteLogPath)));
                 }
             }
             catch(IOException e){

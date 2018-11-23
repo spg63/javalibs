@@ -11,14 +11,11 @@ import java.io.InputStreamReader;
 @SuppressWarnings("unused")
 public class In{
     private static volatile In _instance;
-    private Out out = null;
-    private Log log = null;
+    private Out out = Out.get();
+    private TSL log = TSL.get();
 
 
-    private In(){
-        this.out = Out.get();
-        this.log = Log.get();
-    }
+    private In(){ }
 
     public static In get(){
         if(_instance == null){
@@ -42,7 +39,7 @@ public class In{
             }
         }
         catch(IOException e){
-            log.logErr("readStr() -- IOException");
+            log.err("readStr() -- IOException");
         }
         return line;
     }
@@ -62,7 +59,7 @@ public class In{
             }
         }
         catch(IOException e){
-            log.logErr("readInt() -- IOException");
+            log.err("readInt() -- IOException");
         }
         //noinspection ConstantConditions
         return Integer.parseInt(line);
@@ -83,7 +80,7 @@ public class In{
             }
         }
         catch(IOException e){
-            log.logErr("readDouble() -- IOException");
+            log.err("readDouble() -- IOException");
         }
         //noinspection ConstantConditions
         return Double.parseDouble(line);

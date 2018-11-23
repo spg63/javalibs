@@ -8,8 +8,7 @@ import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 
 /**
@@ -70,7 +69,7 @@ public class FileUtils{
     public long lineCount(String filePath){
         long lines = 0;
         try {
-            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            BufferedReader br = Files.newBufferedReader(Paths.get(filePath));
             while (br.readLine() != null) ++lines;
             br.close();
         }
@@ -82,14 +81,14 @@ public class FileUtils{
 
     /**
      * Read a file in as a string
-     * @param filepath The path to the file
+     * @param filePath The path to the file
      * @return The file, as a string, if it's found and read successfully
      */
-    public String readFullFile(String filepath) {
+    public String readFullFile(String filePath) {
         BufferedReader br = null;
         String all = null;
         try{
-            br = new BufferedReader(new FileReader(filepath));
+            br = Files.newBufferedReader(Paths.get(filePath));
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
             while(line != null){
@@ -100,7 +99,7 @@ public class FileUtils{
             all = sb.toString();
         }
         catch(FileNotFoundException e){
-            out.writeln_err(filepath + " not found.");
+            out.writeln_err(filePath + " not found.");
         }
         catch(IOException e){
             out.writeln_err("IOException in javalibs.FileUtils.readFullFile");
@@ -120,14 +119,14 @@ public class FileUtils{
 
     /**
      * Read a file line by line
-     * @param filepath The path to the file
+     * @param filePath The path to the file
      * @return A list of lines of the file (as strings) if file is found and readable
      */
-    public List<String> readLineByLine(String filepath) {
+    public List<String> readLineByLine(String filePath) {
         List<String> lines = new ArrayList<>();
         BufferedReader br = null;
         try{
-            br = new BufferedReader(new FileReader(filepath));
+            br = Files.newBufferedReader(Paths.get(filePath));
             String line = br.readLine();
             while(line != null){
                 lines.add(line);
@@ -219,7 +218,7 @@ public class FileUtils{
     public boolean writeNewFile(String fileName, String str){
         BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter(fileName));
+            writer = Files.newBufferedWriter(Paths.get(fileName));
             writer.write(str);
             writer.close();
         }
@@ -238,7 +237,7 @@ public class FileUtils{
     public boolean appendToFile(String filename, String str){
         BufferedWriter writer;
         try{
-            writer = new BufferedWriter(new FileWriter(filename, true));
+            writer = Files.newBufferedWriter(Paths.get(filename), StandardOpenOption.APPEND);
             writer.write(str);
             writer.close();
         }

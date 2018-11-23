@@ -39,7 +39,6 @@ public class FileHasher{
     }
 
     public void logHash(String file_path){
-        Log l = Log.get();
-        l.log(file_path+": "+hash(file_path));
+        TSL.get().info(file_path+": "+hash(file_path));
     }
 }
