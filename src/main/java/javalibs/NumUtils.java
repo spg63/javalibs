@@ -1,5 +1,6 @@
 package javalibs;
 
+@SuppressWarnings("WeakerAccess")
 public class NumUtils {
     public static double getDouble(String aNumberIHope) {
         double val = 0;

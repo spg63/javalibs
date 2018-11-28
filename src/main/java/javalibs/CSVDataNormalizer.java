@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+@SuppressWarnings({"unchecked", "SpellCheckingInspection", "unused", "UnusedAssignment",
+        "ConstantConditions"})
 public class CSVDataNormalizer {
     private String csvPath;
     private List<String> columnsToNormalize;

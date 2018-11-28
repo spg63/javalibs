@@ -1,5 +1,6 @@
 package javalibs;
 
+@SuppressWarnings("WeakerAccess")
 public class Pair<L, R> {
     private L left;
     private R right;
