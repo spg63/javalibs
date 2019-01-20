@@ -52,8 +52,7 @@ public class FileUtils{
      * @param dirName Path to the directory
      */
     public void checkAndCreateDir(String dirName){
-        String path = getWorkingDir();
-        File tmp = new File(path + File.separator + dirName);
+        File tmp = new File(dirName);
         if(!tmp.exists()) {
             TSL.get().info("Creating directory: " + tmp.toString());
             if(!tmp.mkdirs())
