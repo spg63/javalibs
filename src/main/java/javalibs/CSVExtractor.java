@@ -20,6 +20,7 @@ public class CSVExtractor {
     private String inCSV;
     private String outCSV;
     private List<String> extractionCols;
+    private String[] orderedExtractionCols;
     private int numInputCols = 0;
     private List<CSVRecord> inRecords = new ArrayList<>();
     private Map<Integer, String> orderedHeadersMap = new HashMap<>();
@@ -35,19 +36,16 @@ public class CSVExtractor {
     /**
      * Writes the CSV to the path specified in the c'tor. Returns the absolute path to
      * the output CSV file
-     * @return
+     * @return The absolute path to the output CSV file
      */
     public String writeCSV(){
         BufferedWriter bw = null;
         CSVPrinter printer = null;
 
-        String[] headerArr = new String[this.extractionCols.size()];
-        headerArr = this.extractionCols.toArray(headerArr);
-
         try{
             bw = Files.newBufferedWriter(Paths.get(this.outCSV));
             printer = new CSVPrinter(bw, CSVFormat.DEFAULT
-                                    .withHeader(headerArr));
+                                    .withHeader(this.orderedExtractionCols));
         }
         catch(IOException e){
             log_.logAndKill(e);
@@ -121,8 +119,20 @@ public class CSVExtractor {
             ++this.numInputCols;
         }
 
+        // Put *all* headers in order
         this.headersInOrder = new String[this.numInputCols];
         for(int i = 0; i < this.numInputCols; ++i)
             this.headersInOrder[i] = this.orderedHeadersMap.get(i);
+
+        // Put all of the extraction headers in order. One would assume a user passes
+        // the columns in order as they appear in the CSV. One would be wrong.
+        this.orderedExtractionCols = new String[this.extractionCols.size()];
+        int cnt = 0;
+        for(String col: this.headersInOrder){
+            if(this.extractionCols.contains(col)) {
+                this.orderedExtractionCols[cnt] = col;
+                ++cnt;
+            }
+        }
     }
 }
