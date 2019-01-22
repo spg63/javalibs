@@ -114,6 +114,39 @@ public class CSVExtractor {
         return records;
     }
 
+    /**
+     * Write a single CSV record to a CSV file
+     * @param path The path to save the CSV file
+     * @param rec The record to be written
+     * @param headers Headers for the CSV. If this value is null there will be no
+     *                headers added to the CSV
+     */
+    public static void writeCSVRecord(String path, CSVRecord rec, String[] headers) {
+        BufferedWriter bw = null;
+        CSVPrinter printer = null;
+        try{
+            bw = Files.newBufferedWriter(Paths.get(path));
+            if(headers != null)
+                printer = new CSVPrinter(bw, CSVFormat.DEFAULT.withHeader(headers));
+            else
+                printer = new CSVPrinter(bw, CSVFormat.DEFAULT);
+        }
+        catch(IOException e){
+            TSL.get().exception(e);
+        }
+
+        if(bw == null || printer == null)
+            TSL.get().logAndKill("bw or ptiner null in CSVExtractor.writeCSVRecord");
+
+        try {
+            printer.printRecord(rec);
+            printer.flush();
+        }
+        catch(IOException e){
+            TSL.get().exception(e);
+        }
+    }
+
     private void readCSV(){
         try{
             CSVParser parser = new CSVParser(
