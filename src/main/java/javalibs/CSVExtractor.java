@@ -89,6 +89,31 @@ public class CSVExtractor {
         return new File(this.outCSV).getAbsolutePath();
     }
 
+    /**
+     * Read a CSV file and return a list of records representing each row in the CSV
+     * NOTE: This does not handle anything but plain CSV files with default formatting
+     * @param csvPath The path to the CSV file
+     * @return The list of CSVRecord objects
+     */
+    public static List<CSVRecord> getCSVRecords(String csvPath) {
+        CSVParser parser = null;
+        List<CSVRecord> records = null;
+        try{
+            parser = new CSVParser(
+                    Files.newBufferedReader(Paths.get(csvPath)),
+                    CSVFormat.DEFAULT
+                    .withHeader()
+                    .withIgnoreHeaderCase()
+                    .withTrim()
+            );
+            records = parser.getRecords();
+        }
+        catch(IOException e){
+            TSL.get().exception(e);
+        }
+        return records;
+    }
+
     private void readCSV(){
         try{
             CSVParser parser = new CSVParser(

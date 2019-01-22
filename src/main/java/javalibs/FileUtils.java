@@ -39,6 +39,21 @@ public class FileUtils{
     }
 
     /**
+     * Get the file separate for the OS this system is running on
+     * @return The separate string
+     */
+    public String sep(){
+        return File.separator;
+    }
+
+    /**
+     * Determine if a file already exists
+     * @param pathToFile The path to the file
+     * @return True if the file exists, else false
+     */
+    public boolean fexists(String pathToFile) { return new File(pathToFile).exists(); }
+
+    /**
      * Get the current working directory
      * @return The path to the current working directory
      */
