@@ -147,6 +147,8 @@ public class CSVExtractor {
         }
     }
 
+    //public static void writeCSVRecordRemoveColumn(String path, CSVRecord, )
+
     private void readCSV(){
         try{
             CSVParser parser = new CSVParser(
