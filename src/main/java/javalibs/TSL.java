@@ -225,7 +225,7 @@ public class TSL extends Thread{
         try{
             itemsToLog.put(SHUTDOWN_REQ);
             Thread.sleep(1000);
-            System.exit(6);
+            System.exit(0);
         }
         catch(InterruptedException e){
             System.exit(6);
