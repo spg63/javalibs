@@ -187,6 +187,7 @@ public class CSVExtractor {
         // Put all of the extraction headers in order. One would assume a user passes
         // the columns in order as they appear in the CSV. One would be wrong.
         this.orderedExtractionCols = new String[this.extractionCols.size()];
+
         int cnt = 0;
         for(String col: this.headersInOrder){
             if(this.extractionCols.contains(col)) {
