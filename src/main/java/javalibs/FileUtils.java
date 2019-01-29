@@ -177,14 +177,11 @@ public class FileUtils{
         File[] files = new File(path).listFiles();
         if(files == null)
             return Collections.emptyList();
-        for(File f : files){
+        for(File f : files) {
             if(f.isFile() && f.getName().startsWith(prefix))
                 filepaths.add(f.getAbsolutePath());
         }
-        if(filepaths.isEmpty()) return Collections.emptyList();
-        Comparator<String> comparator = Comparator.comparing((String x) -> x);
-        filepaths.sort(comparator);
-        return filepaths;
+        return sortedFilePaths(filepaths);
     }
 
     /**
@@ -197,13 +194,40 @@ public class FileUtils{
         File[] files = new File(path).listFiles();
         if(files == null)
             return Collections.emptyList();
-        for(File f : files)
-            if(f.isFile())
+        for(File f : files) {
+            if (f.isFile())
                 filepaths.add(f.getAbsolutePath());
-        if(filepaths.isEmpty()) return Collections.emptyList();
+        }
+        return sortedFilePaths(filepaths);
+    }
+
+    private List<String> sortedFilePaths(List<String> paths){
+        if(paths.isEmpty()) return Collections.emptyList();
         Comparator<String> comparator = Comparator.comparing((String x) -> x);
-        filepaths.sort(comparator);
-        return filepaths;
+        paths.sort(comparator);
+        return paths;
+    }
+
+    /**
+     * Delete a file if it exists. If the file does not exist this will return true.
+     * Note, if the file cannot be deleted this eats the security exception and returns
+     * false.
+     * @param pathToFile The path to the file to be deleted
+     * @return True if the file does not exist at the end of the function, else false
+     */
+    public boolean deleteFile(String pathToFile){
+        File f = new File(pathToFile);
+        if(!f.exists()) {
+            TSL.get().warn("FileUtils.deleteFile " + pathToFile + " doesn't exist");
+            return true;
+        }
+        try {
+            return f.delete();
+        }
+        catch(SecurityException e){
+            TSL.get().exception(e);
+            return false;
+        }
     }
 
     /**
