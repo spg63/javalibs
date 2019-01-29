@@ -217,10 +217,8 @@ public class FileUtils{
      */
     public boolean deleteFile(String pathToFile){
         File f = new File(pathToFile);
-        if(!f.exists()) {
-            TSL.get().warn("FileUtils.deleteFile " + pathToFile + " doesn't exist");
+        if(!f.exists())
             return true;
-        }
         try {
             return f.delete();
         }

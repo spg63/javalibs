@@ -283,7 +283,7 @@ public class TSL extends Thread{
 
         StackTraceElement elementOfInterest = stackFrames[frameOfInterest];
 
-        info("\n\t *** AUTOLOGGED *** \n" +
+        warn("\n\t *** AUTOLOGGED *** \n" +
                 "\t Class name:      " + elementOfInterest.getClassName() + "\n" +
                 "\t Function name:   " + elementOfInterest.getMethodName() + "\n" +
                 "\t Line number:     " + elementOfInterest.getLineNumber() + "\n" +
