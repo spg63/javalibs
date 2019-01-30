@@ -15,9 +15,10 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings({"unused", "WeakerAccess", "SpellCheckingInspection"})
 public class TSL extends Thread{
-    // NOTE: Using an enum here would be ideal, but enums in java don't appear to correspond to
-    // int values which means they can't be added to strings. So, without wasting an hour figuring
-    // out the "right" way to do this, I'm just going to define some ints.
+    // NOTE: Using an enum here would be ideal, but enums in java don't appear to
+    // correspond to int values which means they can't be added to strings. So, without
+    // wasting an hour figuring out the "right" way to do this, I'm just going to define
+    // some ints.
     private static final Integer INFO       = 0;
     private static final Integer WARN       = 1;
     private static final Integer ERROR      = 2;
@@ -137,7 +138,8 @@ public class TSL extends Thread{
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw new RuntimeException("ThreadSafeLogger.info() -- Unexpected interruption");
+            throw new RuntimeException("ThreadSafeLogger.info() -- " +
+                    "Unexpected interruption");
         }
     }
 
@@ -153,7 +155,8 @@ public class TSL extends Thread{
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw new RuntimeException("ThreadSafeLogger.warn() -- Unexpected interruption");
+            throw new RuntimeException("ThreadSafeLogger.warn() -- " +
+                    "Unexpected interruption");
         }
     }
 
@@ -169,7 +172,8 @@ public class TSL extends Thread{
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw new RuntimeException("ThreadSafeLogger.err() -- Unexpected interruption");
+            throw new RuntimeException("ThreadSafeLogger.err() -- " +
+                    "Unexpected interruption");
         }
     }
 
@@ -181,7 +185,8 @@ public class TSL extends Thread{
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw new RuntimeException(("ThreadSafeLogger.exception() -- Unexpected interruption"));
+            throw new RuntimeException(("ThreadSafeLogger.exception() -- " +
+                    "Unexpected interruption"));
         }
     }
 
@@ -206,18 +211,19 @@ public class TSL extends Thread{
         shuttingDown = true;
         try {
             itemsToLog.put(SHUTDOWN_REQ);
-            // Force a pause of the main thread to give the logger thread a change to write all
-            // data to the file system
+            // Force a pause of the main thread to give the logger thread a chance to
+            // write all data to the file system
             Thread.sleep(1000);
         }
         catch(InterruptedException e){
-            throw new RuntimeException("ThreadSafeLogger.shutDown() -- Unexpected interruption");
+            throw new RuntimeException("ThreadSafeLogger.shutDown() -- " +
+                    "Unexpected interruption");
         }
     }
 
     /**
-     * Shutdown the logger, sleep for a second to allow the logger to finish flushing to disk then
-     * kill the program with exit code 6
+     * Shutdown the logger, sleep for a second to allow the logger to finish flushing to
+     * disk then kill the program with exit code
      * NOTE: This traps the calling thread!
      */
     public void logAndKill(){
@@ -233,7 +239,8 @@ public class TSL extends Thread{
     }
 
     /**
-     * Shutdown the logger, adding a final log message onto the queue before killing the program
+     * Shutdown the logger, adding a final log message onto the queue before killing the
+     * program
      * @param log_message The message ot be logged before shutdown
      */
     public void logAndKill(String log_message){
@@ -247,11 +254,11 @@ public class TSL extends Thread{
     }
 
     /**
-     * This function will automatically log an INFO message for the calling class name, function
-     * name, and line number of the function call. It also accepts an optional log message. Function
-     * is useful to see where execution may have stopped, or where a specific area of interest shows
-     * up without forcing the user to add line specific or message specific messages to the logger
-     * call.
+     * This function will automatically log an INFO message for the calling class name,
+     * function name, and line number of the function call. It also accepts an optional
+     * log message. Function is useful to see where execution may have stopped, or
+     * where a specific area of interest shows up without forcing the user to add line
+     * specific or message specific messages to the logger call.
      * NOTE: It's not a particularily fast function to call
      * @param log_message Message to add to the Class name, function name, and line number
      */
@@ -259,25 +266,27 @@ public class TSL extends Thread{
         // Get all stack frame for the calling thead
         StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
 
-        // Note: Depending on the JVM the frame index could be different. However, if we find the
-        // frame immediately after the frame for this function, that *should* give the frame for
-        // the calling function.
+        // Note: Depending on the JVM the frame index could be different. However, if we
+        // find the frame immediately after the frame for this function, that *should*
+        // give the frame for the calling function.
         int thisFunctionFrameIndex = -1;
         String thisFunctionName = "autoLog";
         for(int i = 0; i < stackFrames.length; ++i)
             if(thisFunctionName.equals(stackFrames[i].getMethodName()))
                 thisFunctionFrameIndex = i;
 
-        // Couldn't find the this function in the stack trace. Not sure why, but return and let
-        // them know.
+        // Couldn't find the this function in the stack trace. Not sure why, but
+        // return and let them know.
         if(thisFunctionFrameIndex == -1) {
-            err(thisFunctionName + " unable to determine calling function name & line number");
+            err(thisFunctionName + " unable to determine calling function name & line " +
+                    "number");
             return;
         }
 
         int frameOfInterest = thisFunctionFrameIndex + 1;
         if(frameOfInterest >= stackFrames.length){
-            err(thisFunctionName + " calling function frame out of range, unable to determine calling function name & line number");
+            err(thisFunctionName + " calling function frame out of range, unable to " +
+                    "determine calling function name & line number");
             return;
         }
 
