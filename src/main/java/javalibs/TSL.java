@@ -303,7 +303,6 @@ public class TSL extends Thread{
         int hour = ldt.getHour();
         int min = ldt.getMinute();
         int sec = ldt.getSecond();
-        //int milli = (ldt.getNano())/(1000000);
         long milli = TimeUnit.NANOSECONDS.toMillis(ldt.getNano());
 
         String hour_s = hour < 10 ? ("0" + hour) : Integer.toString(hour);
