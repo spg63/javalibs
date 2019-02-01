@@ -1,5 +1,8 @@
-package javalibs;/*
+package javalibs;
+/**
  * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
+ * @author Sean Grimes, spg63@drexel.edu
+ * @since 6/6/15
  * License: MIT License
  */
 

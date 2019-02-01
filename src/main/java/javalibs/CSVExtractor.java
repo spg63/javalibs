@@ -1,4 +1,10 @@
 package javalibs;
+/**
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
+ * @author Sean Grimes, spg63@drexel.edu
+ * @since 1/1/19
+ * License: MIT License
+ */
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;

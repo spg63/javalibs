@@ -1,4 +1,8 @@
 package javalibs;
+/*
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
+ * License: MIT License
+ */
 
 import java.io.*;
 

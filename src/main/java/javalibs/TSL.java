@@ -8,11 +8,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
- * @author Sean Grimes, spg63@cs.drexel.edu
+ * @author Sean Grimes, spg63@drexel.edu
  * @author Andrew W.E. McDonald
  * @since 6/6/15
  * License: MIT License
  */
+
 @SuppressWarnings({"unused", "WeakerAccess", "SpellCheckingInspection"})
 public class TSL extends Thread{
     // NOTE: Using an enum here would be ideal, but enums in java don't appear to

@@ -1,4 +1,10 @@
 package javalibs;
+/**
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
+ * @author Sean Grimes, spg63@drexel.edu
+ * @since 12/20/18
+ * License: MIT License
+ */
 
 
 import org.apache.commons.csv.CSVFormat;
@@ -108,7 +114,7 @@ public class CSVDataNormalizer {
             for(int i = 0; i < this.numCols; ++i){
                 String colName = this.colNumToName.get(i);
                 if(columnsToNormalize.contains(colName)){
-                    double curVal = NumUtils.getDouble(rec.get(colName));
+                    double curVal = NumUtils.getDoubleFromStr(rec.get(colName));
                     Pair<Double, Double> maxMin = this.colsToMaxMinPairs.get(colName);
                     double normal = NumUtils.normalizeBetweenZeroOne(maxMin.right(),
                             maxMin.left(), curVal);
@@ -161,7 +167,7 @@ public class CSVDataNormalizer {
         double max = Double.MIN_VALUE;
         double min = Double.MAX_VALUE;
         for(CSVRecord record : this.allRecords){
-            double val = NumUtils.getDouble(record.get(columnName));
+            double val = NumUtils.getDoubleFromStr(record.get(columnName));
             // NOTE: Floating point errors aren't really that important here, don't waste time on
             // a proper floating point comparison
             if(val > max) max = val;
