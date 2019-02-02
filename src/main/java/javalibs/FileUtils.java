@@ -124,7 +124,8 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | javalibs.FileUtils.readFullFile");
+                    out.writeln_err("Couldn't close the br | " +
+                            "javalibs.FileUtils.readFullFile");
                 }
             }
         }
@@ -157,7 +158,8 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | javalibs.FileUtils.readLineByLine");
+                    out.writeln_err("Couldn't close the br | " +
+                            "javalibs.FileUtils.readLineByLine");
                 }
             }
         }
@@ -165,8 +167,8 @@ public class FileUtils{
     }
 
     /**
-     * Returns a list of absolute file paths to files in a directory that start with the supplied
-     * prefix
+     * Returns a list of absolute file paths to files in a directory that start with the
+     * supplied prefix
      * @param prefix The prefix string that a file should match with
      * @param path The path to the directory containing the files
      * @return The list of absolute paths, null if nothing matching in the directory
@@ -228,6 +230,31 @@ public class FileUtils{
         }
     }
 
+    public boolean deleteDir(String pathToDir){
+        File dir = new File(pathToDir);
+        if(!dir.exists() || !dir.isDirectory()) return true;
+        return rmdir(dir);
+    }
+
+    private boolean rmdir(File dir){
+        File[] contents = dir.listFiles();
+        if(contents != null){
+            for(File f: contents){
+                if(!Files.isSymbolicLink(f.toPath()))
+                    rmdir(f);
+            }
+        }
+        boolean okay;
+        try {
+            okay = dir.delete();
+        }
+        catch(SecurityException e){
+            TSL.get().exception(e);
+            return false;
+        }
+        return okay;
+    }
+
     /**
      * Returns java File objects for all Files in a directory
      * @param path Path to the directory
@@ -273,7 +300,8 @@ public class FileUtils{
     public boolean appendToFile(String filename, String str){
         BufferedWriter writer;
         try{
-            writer = Files.newBufferedWriter(Paths.get(filename), StandardOpenOption.APPEND);
+            writer = Files.newBufferedWriter(Paths.get(filename),
+                    StandardOpenOption.APPEND);
             writer.write(str);
             writer.close();
         }
@@ -317,7 +345,8 @@ public class FileUtils{
         try{
             FileInputStream fin = new FileInputStream(filePath);
             BufferedInputStream bis = new BufferedInputStream(fin);
-            CompressorInputStream cis = new CompressorStreamFactory().createCompressorInputStream(bis);
+            CompressorInputStream cis =
+                    new CompressorStreamFactory().createCompressorInputStream(bis);
             br = new BufferedReader(new InputStreamReader(cis));
 
         }
@@ -329,6 +358,7 @@ public class FileUtils{
     }
 
     public BufferedReader getBufferedReaderForZipFile(String filePath){
-        throw new RuntimeException("Currently no support for archiving formats, only compressors");
+        throw new RuntimeException("Currently no support for archiving formats, " +
+                "only compressors");
     }
 }
