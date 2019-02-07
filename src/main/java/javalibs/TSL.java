@@ -1,5 +1,7 @@
 package javalibs;
 
+
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -196,6 +198,7 @@ public class TSL extends Thread{
      * @param e The exception to be logged
      */
     public void exception(Exception e){
+        if(null == e) return;
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
