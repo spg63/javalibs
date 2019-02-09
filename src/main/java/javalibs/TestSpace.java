@@ -29,9 +29,13 @@ class TestSpace implements Functor{
 
         Functor method = map.get("test");
         method.execute();
+
+
+
     }
 
     public static void notMuchOfAFunction(){
         TSL.get().autoLog("Message");
     }
+
 }

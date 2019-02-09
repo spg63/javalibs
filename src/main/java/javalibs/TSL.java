@@ -26,13 +26,18 @@ public class TSL extends Thread{
     private static final Integer WARN       = 1;
     private static final Integer ERROR      = 2;
     private static final Integer EXCEPTION  = 3;
+    private static final Integer TRACE      = 4;
+    private static final Integer DEBUG      = 5;
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
-    public static boolean LOG_INFO = true;
-    public static boolean LOG_WARN = true;
-    public static boolean LOG_TO_CONSOLE = true;
-    public static boolean REWRITE_LOG_FILE = true;
+    public static boolean LOG_INFO          = true;
+    public static boolean LOG_WARN          = true;
+    public static boolean LOG_TRACE         = true;
+    public static boolean LOG_DEBUG         = true;
+    public static boolean ALLOW_REQUIRE     = true;
+    public static boolean LOG_TO_CONSOLE    = true;
+    public static boolean REWRITE_LOG_FILE  = true;
 
     private String SHUTDOWN_REQ;
     private volatile boolean shuttingDown, loggerTerminated;
@@ -99,6 +104,10 @@ public class TSL extends Thread{
 
                 if(Character.getNumericValue(item.charAt(0)) == INFO)
                     label = "[INF] ";
+                else if(Character.getNumericValue(item.charAt(0)) == TRACE)
+                    label = "[TRC] ";
+                else if(Character.getNumericValue(item.charAt(0)) == DEBUG)
+                    label = "[BUG] ";
                 else if(Character.getNumericValue(item.charAt(0)) == WARN)
                     label = "[WAR] ";
                 else if(Character.getNumericValue(item.charAt(0)) == ERROR)
@@ -176,6 +185,40 @@ public class TSL extends Thread{
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
             throw new RuntimeException("ThreadSafeLogger.err() -- " +
+                    "Unexpected interruption");
+        }
+    }
+
+    /**
+     * javalibs.Log trace
+     * @param str The log message
+     */
+    public void trace(Object str){
+        if(!LOG_TRACE || shuttingDown || loggerTerminated)
+            return;
+        try{
+            itemsToLog.put(TRACE.toString() + " " + str);
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("ThreadSafeLogger.trace() -- " +
+                    "Unexcepted interruption");
+        }
+    }
+
+    /**
+     * javalibs.Log debug
+     * @param str The log message
+     */
+    public void debug(Object str){
+        if(!LOG_DEBUG || shuttingDown || loggerTerminated)
+            return;
+        try{
+            itemsToLog.put(DEBUG.toString() + " " + str);
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("ThreadSafeLogger.debug() -- " +
                     "Unexpected interruption");
         }
     }
@@ -267,41 +310,7 @@ public class TSL extends Thread{
      * @param log_message Message to add to the Class name, function name, and line number
      */
     public void autoLog(String log_message){
-        // Get all stack frame for the calling thead
-        StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
-
-        // Note: Depending on the JVM the frame index could be different. However, if we
-        // find the frame immediately after the frame for this function, that *should*
-        // give the frame for the calling function.
-        int thisFunctionFrameIndex = -1;
-        String thisFunctionName = "autoLog";
-        for(int i = 0; i < stackFrames.length; ++i)
-            if(thisFunctionName.equals(stackFrames[i].getMethodName()))
-                thisFunctionFrameIndex = i;
-
-        // Couldn't find the this function in the stack trace. Not sure why, but
-        // return and let them know.
-        if(thisFunctionFrameIndex == -1) {
-            err(thisFunctionName + " unable to determine calling function name & line " +
-                    "number");
-            return;
-        }
-
-        int frameOfInterest = thisFunctionFrameIndex + 1;
-        if(frameOfInterest >= stackFrames.length){
-            err(thisFunctionName + " calling function frame out of range, unable to " +
-                    "determine calling function name & line number");
-            return;
-        }
-
-        StackTraceElement elementOfInterest = stackFrames[frameOfInterest];
-
-        warn("\n\t *** AUTOLOGGED *** \n" +
-                "\t Class name:      " + elementOfInterest.getClassName() + "\n" +
-                "\t Function name:   " + elementOfInterest.getMethodName() + "\n" +
-                "\t Line number:     " + elementOfInterest.getLineNumber() + "\n" +
-                "\t Log message:     " + log_message);
-
+        info(getStackInfo(log_message));
     }
 
     /**
@@ -309,6 +318,74 @@ public class TSL extends Thread{
      */
     public void autoLog(){
         autoLog("");
+    }
+
+    /**
+     * Builds the stack information string for autologging
+     */
+    private String getStackInfo(Object msg){
+        // Get all stack frame for the calling thead
+        StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
+
+        // Note: Depending on the JVM the frame index could be different. However, if we
+        // find the frame immediately after the frame for this function, that *should*
+        // give the frame for the calling function.
+
+        int thisFunctionFrameIndex = -1;
+        String thisFunctionName = "getStackInfo";
+        for(int i = 0; i < stackFrames.length; ++i)
+            if(thisFunctionName.equals(stackFrames[i].getMethodName()))
+                thisFunctionFrameIndex = i;
+
+        if(thisFunctionFrameIndex == -1){
+            err(thisFunctionName + " unable to do anything at all. This sucks.");
+            return "";
+        }
+
+        // Need to increment by 2 since this is called internally by autolog or require
+        int frameOfInterest = thisFunctionFrameIndex + 2;
+        if(frameOfInterest >= stackFrames.length){
+            err(thisFunctionName + " unable to do anything at all. This sucks.");
+            return "";
+        }
+
+        int internalCaller = thisFunctionFrameIndex + 1;
+        String callerName = "";
+        if(internalCaller < stackFrames.length)
+            callerName = stackFrames[internalCaller].getMethodName();
+
+        StackTraceElement elementOfInterest = stackFrames[frameOfInterest];
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n\t *** " + callerName + " *** \n");
+        builder.append("\t Class name:      " + elementOfInterest.getClassName() + "\n");
+        builder.append("\t Function name:   " + elementOfInterest.getMethodName() + "\n");
+        builder.append("\t Line number:     " + elementOfInterest.getLineNumber() + "\n");
+        builder.append("\t Log message:     " + msg);
+        return builder.toString();
+    }
+
+    /**
+     * Similar to assertTrue, will kill the program if trueToLive is false, however it
+     * kills it from the logger, automatically giving you function, line information.
+     * Essentially the info from an exception while also letting the logger die properly
+     * @param trueToLive True or false, false dies
+     * @param msg Additional log message
+     */
+    public void require(Boolean trueToLive, Object msg){
+        // require can be skipped if we want to live dangerously, or for, like, production
+        if(!ALLOW_REQUIRE) return;
+        if(trueToLive) return;
+        logAndKill(getStackInfo(msg));
+    }
+
+    /**
+     * Similar to assertTrue, will kill the program if trueToLive is false, however it
+     * kills it from the logger, automatically giving you function, line information.
+     * Essentially the info from an exception while also letting the logger die properly
+     * @param trueToLive
+     */
+    public void require(Boolean trueToLive){
+        require(trueToLive, "");
     }
 
     private String time_str(){
