@@ -79,6 +79,20 @@ public class MTOut {
         }
     }
 
+    public void debug(String msg){
+        synchronized (MTOut.class){
+            if(inBuffer(msg)) return;
+            log_.debug(msg);
+        }
+    }
+
+    public void trace(String msg){
+        synchronized (MTOut.class){
+            if(inBuffer(msg)) return;
+            log_.trace(msg);
+        }
+    }
+
     public void warn(String msg){
         synchronized (MTOut.class) {
             if(inBuffer(msg)) return;

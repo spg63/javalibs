@@ -372,9 +372,8 @@ public class TSL extends Thread{
      * @param msg Additional log message
      */
     public void require(Boolean trueToLive, Object msg){
-        // require can be skipped if we want to live dangerously, or for, like, production
-        if(!ALLOW_REQUIRE) return;
-        if(trueToLive) return;
+        // Require can be skipped if we want to live dangerously, or for, like, production
+        if(!ALLOW_REQUIRE || trueToLive) return;
         logAndKill(getStackInfo(msg));
     }
 
