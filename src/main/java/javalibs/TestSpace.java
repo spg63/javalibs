@@ -20,7 +20,7 @@ class TestSpace implements Functor{
 
     public static void main(String[] args) throws Exception {
         notMuchOfAFunction();
-        TSL.get().logAndKill();
+        TSL.get().die();
 
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {

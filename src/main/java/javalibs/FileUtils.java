@@ -69,7 +69,7 @@ public class FileUtils{
     public void checkAndCreateDir(String dirName){
         File tmp = new File(dirName);
         if(!tmp.exists()) {
-            TSL.get().info("Creating directory: " + tmp.toString());
+            TSL.get().trace("Creating directory: " + tmp.toString());
             if(!tmp.mkdirs())
                 TSL.get().err("Failed to create directory path: " + dirName);
         }
@@ -113,10 +113,10 @@ public class FileUtils{
             all = sb.toString();
         }
         catch(FileNotFoundException e){
-            out.writeln_err(filePath + " not found.");
+            TSL.get().err(filePath + " not found.");
         }
         catch(IOException e){
-            out.writeln_err("IOException in javalibs.FileUtils.readFullFile");
+            TSL.get().exception(e);
         }
         finally{
             if(br != null){
@@ -124,7 +124,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | " +
+                    TSL.get().err("Couldn't close the br | " +
                             "javalibs.FileUtils.readFullFile");
                 }
             }
@@ -150,7 +150,7 @@ public class FileUtils{
         }
         catch(Exception e){
             e.printStackTrace();
-            out.writeln_err("Problem with readLineByLine");
+            TSL.get().err("Problem with readLineByLine");
         }
         finally{
             if(br != null){
@@ -158,7 +158,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    out.writeln_err("Couldn't close the br | " +
+                    TSL.get().err("Couldn't close the br | " +
                             "javalibs.FileUtils.readLineByLine");
                 }
             }

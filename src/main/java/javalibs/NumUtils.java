@@ -10,7 +10,7 @@ public class NumUtils {
             val = Double.parseDouble(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().logAndKill(e);
+            TSL.get().die(e);
         }
         return val;
     }
@@ -21,7 +21,7 @@ public class NumUtils {
             val = Long.parseLong(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().logAndKill(e);
+            TSL.get().die(e);
         }
         return val;
     }

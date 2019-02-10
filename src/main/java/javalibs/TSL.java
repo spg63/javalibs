@@ -1,7 +1,6 @@
 package javalibs;
 
 
-import javax.annotation.Nonnull;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -31,13 +30,13 @@ public class TSL extends Thread{
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
-    public static boolean LOG_INFO          = true;
-    public static boolean LOG_WARN          = true;
     public static boolean LOG_TRACE         = true;
     public static boolean LOG_DEBUG         = true;
+    public static boolean LOG_INFO          = true;
+    public static boolean LOG_WARN          = true;
     public static boolean ALLOW_REQUIRE     = true;
     public static boolean LOG_TO_CONSOLE    = true;
-    public static boolean REWRITE_LOG_FILE  = true;
+    public static boolean REWRITE_LOG_FILE  = false;
 
     private String SHUTDOWN_REQ;
     private volatile boolean shuttingDown, loggerTerminated;
@@ -107,7 +106,7 @@ public class TSL extends Thread{
                 else if(Character.getNumericValue(item.charAt(0)) == TRACE)
                     label = "[TRC] ";
                 else if(Character.getNumericValue(item.charAt(0)) == DEBUG)
-                    label = "[BUG] ";
+                    label = "[DBG] ";
                 else if(Character.getNumericValue(item.charAt(0)) == WARN)
                     label = "[WAR] ";
                 else if(Character.getNumericValue(item.charAt(0)) == ERROR)
@@ -273,11 +272,11 @@ public class TSL extends Thread{
      * disk then kill the program with exit code
      * NOTE: This traps the calling thread!
      */
-    public void logAndKill(){
+    public void die(){
         shuttingDown = true;
         try{
             itemsToLog.put(SHUTDOWN_REQ);
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             System.exit(0);
         }
         catch(InterruptedException e){
@@ -290,14 +289,14 @@ public class TSL extends Thread{
      * program
      * @param log_message The message ot be logged before shutdown
      */
-    public void logAndKill(String log_message){
+    public void die(String log_message){
         err(log_message);
-        logAndKill();
+        die();
     }
 
-    public void logAndKill(Exception e){
+    public void die(Exception e){
         exception(e);
-        logAndKill();
+        die();
     }
 
     /**
@@ -374,7 +373,7 @@ public class TSL extends Thread{
     public void require(Boolean trueToLive, Object msg){
         // Require can be skipped if we want to live dangerously, or for, like, production
         if(!ALLOW_REQUIRE || trueToLive) return;
-        logAndKill(getStackInfo(msg));
+        die(getStackInfo(msg));
     }
 
     /**
@@ -384,7 +383,10 @@ public class TSL extends Thread{
      * @param trueToLive
      */
     public void require(Boolean trueToLive){
-        require(trueToLive, "");
+        // Can't just pass empty string to require above, will add a stack frame
+        // element to the stack frame stack
+        if(!ALLOW_REQUIRE || trueToLive) return;
+        die(getStackInfo(""));
     }
 
     private String time_str(){

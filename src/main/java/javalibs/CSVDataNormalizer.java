@@ -106,7 +106,7 @@ public class CSVDataNormalizer {
                     .withHeader(this.headersInOrder));
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
 
         for(CSVRecord rec : this.allRecords){
@@ -138,14 +138,14 @@ public class CSVDataNormalizer {
                 printer.printRecord(writerCells.toArray());
             }
             catch(IOException e){
-                log_.logAndKill(e);
+                log_.die(e);
             }
         }
         try {
             printer.flush();
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
     }
 
@@ -213,7 +213,7 @@ public class CSVDataNormalizer {
             reverseHeaderMap();
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
     }
 

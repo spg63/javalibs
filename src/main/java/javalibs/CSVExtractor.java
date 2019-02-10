@@ -54,12 +54,11 @@ public class CSVExtractor {
                                     .withHeader(this.orderedExtractionCols));
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
 
-        if(bw == null || printer == null){
-            log_.logAndKill("bw or printer null in CSVExtractor.writeCSV()");
-        }
+        log_.require(bw != null, "BufferedWriter cannot be null");
+        log_.require(printer != null, "CSVPrinter cannot be null");
 
         for(CSVRecord rec: this.inRecords){
             List<String> writerCells = new ArrayList<>();
@@ -73,7 +72,7 @@ public class CSVExtractor {
                 }
                 catch(IllegalArgumentException e){
                     log_.err("Could not find column: " + col);
-                    log_.logAndKill(e);
+                    log_.die(e);
                 }
                 writerCells.add(colVal);
             }
@@ -81,14 +80,14 @@ public class CSVExtractor {
                 printer.printRecord(writerCells.toArray());
             }
             catch(IOException e){
-                log_.logAndKill(e);
+                log_.die(e);
             }
         }
         try{
             printer.flush();
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
 
 
@@ -141,8 +140,8 @@ public class CSVExtractor {
             TSL.get().exception(e);
         }
 
-        if(bw == null || printer == null)
-            TSL.get().logAndKill("bw or ptiner null in CSVExtractor.writeCSVRecord");
+        TSL.get().require(bw != null, "BufferedWriter cannot be null");
+        TSL.get().require(printer != null, "CSVPrinter cannot be null");
 
         try {
             printer.printRecord(rec);
@@ -175,7 +174,7 @@ public class CSVExtractor {
             orderHeaders(rawHeaders);
         }
         catch(IOException e){
-            log_.logAndKill(e);
+            log_.die(e);
         }
     }
 
