@@ -240,6 +240,7 @@ public class TSL extends Thread{
      * @param e The exception to be logged
      */
     public void exception(Exception e){
+        if(shuttingDown || loggerTerminated) return;
         if(null == e) return;
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -372,7 +373,7 @@ public class TSL extends Thread{
      */
     public void require(Boolean trueToLive, Object msg){
         // Require can be skipped if we want to live dangerously, or for, like, production
-        if(!ALLOW_REQUIRE || trueToLive) return;
+        if(!ALLOW_REQUIRE || trueToLive || shuttingDown) return;
         die(getStackInfo(msg));
     }
 
@@ -385,8 +386,17 @@ public class TSL extends Thread{
     public void require(Boolean trueToLive){
         // Can't just pass empty string to require above, will add a stack frame
         // element to the stack frame stack
-        if(!ALLOW_REQUIRE || trueToLive) return;
+        if(!ALLOW_REQUIRE || trueToLive || shuttingDown) return;
         die(getStackInfo(""));
+    }
+
+    /**
+     * Kills the program while reporting the location from where the program was killed
+     * @param msg Message to be logged
+     */
+    public void dieFrom(Object msg){
+        if(shuttingDown) return;
+        die(getStackInfo(msg));
     }
 
     private String time_str(){
