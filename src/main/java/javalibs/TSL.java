@@ -21,12 +21,12 @@ public class TSL extends Thread{
     // correspond to int values which means they can't be added to strings. So, without
     // wasting an hour figuring out the "right" way to do this, I'm just going to define
     // some ints.
-    private static final Integer INFO       = 0;
-    private static final Integer WARN       = 1;
-    private static final Integer ERROR      = 2;
-    private static final Integer EXCEPTION  = 3;
-    private static final Integer TRACE      = 4;
-    private static final Integer DEBUG      = 5;
+    private static final int INFO       = 0;
+    private static final int WARN       = 1;
+    private static final int ERROR      = 2;
+    private static final int EXCEPTION  = 3;
+    private static final int TRACE      = 4;
+    private static final int DEBUG      = 5;
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
@@ -101,6 +101,25 @@ public class TSL extends Thread{
             while(!(item = (String)itemsToLog.take()).equals(SHUTDOWN_REQ)){
                 String label;
 
+                int numFlag = Character.getNumericValue(item.charAt(0));
+
+                switch(numFlag){
+                    case TRACE: label = "[TRC] ";
+                                break;
+                    case DEBUG: label = "[DBG] ";
+                                break;
+                    case INFO:  label = "[INF] ";
+                                break;
+                    case WARN:  label = "[WAR] ";
+                                break;
+                    case ERROR: label = "[ERR] ";
+                                break;
+                    default:
+                                label = "[EXP] ";
+                }
+
+
+                /*
                 if(Character.getNumericValue(item.charAt(0)) == INFO)
                     label = "[INF] ";
                 else if(Character.getNumericValue(item.charAt(0)) == TRACE)
@@ -113,7 +132,7 @@ public class TSL extends Thread{
                     label = "[ERR] ";
                 else
                     label = "[EXP] ";
-
+                */
                 // Split the init lable off the string
                 String[] splitItem = item.split(" ", 2);
 
@@ -145,7 +164,7 @@ public class TSL extends Thread{
         if(!LOG_INFO || shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(INFO.toString() + " " + str);
+            itemsToLog.put(INFO + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -162,7 +181,7 @@ public class TSL extends Thread{
         if(!LOG_WARN || shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(WARN.toString() + " " + str);
+            itemsToLog.put(WARN + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -179,7 +198,7 @@ public class TSL extends Thread{
         if(shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(ERROR.toString() + " " + str);
+            itemsToLog.put(ERROR + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -196,7 +215,7 @@ public class TSL extends Thread{
         if(!LOG_TRACE || shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(TRACE.toString() + " " + str);
+            itemsToLog.put(TRACE + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -213,7 +232,7 @@ public class TSL extends Thread{
         if(!LOG_DEBUG || shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(DEBUG.toString() + " " + str);
+            itemsToLog.put(DEBUG + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -226,7 +245,7 @@ public class TSL extends Thread{
         if(shuttingDown || loggerTerminated)
             return;
         try{
-            itemsToLog.put(EXCEPTION.toString() + " " + str);
+            itemsToLog.put(EXCEPTION + " " + str);
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -355,13 +374,11 @@ public class TSL extends Thread{
             callerName = stackFrames[internalCaller].getMethodName();
 
         StackTraceElement elementOfInterest = stackFrames[frameOfInterest];
-        StringBuilder builder = new StringBuilder();
-        builder.append("\n\t *** " + callerName + " *** \n");
-        builder.append("\t Class name:      " + elementOfInterest.getClassName() + "\n");
-        builder.append("\t Function name:   " + elementOfInterest.getMethodName() + "\n");
-        builder.append("\t Line number:     " + elementOfInterest.getLineNumber() + "\n");
-        builder.append("\t Log message:     " + msg);
-        return builder.toString();
+        return "\n\t *** " + callerName + " *** \n" +
+                "\t Class name:      " + elementOfInterest.getClassName() + "\n" +
+                "\t Function name:   " + elementOfInterest.getMethodName() + "\n" +
+                "\t Line number:     " + elementOfInterest.getLineNumber() + "\n" +
+                "\t Log message:     " + msg;
     }
 
     /**
@@ -381,7 +398,7 @@ public class TSL extends Thread{
      * Similar to assertTrue, will kill the program if trueToLive is false, however it
      * kills it from the logger, automatically giving you function, line information.
      * Essentially the info from an exception while also letting the logger die properly
-     * @param trueToLive
+     * @param trueToLive If false, kills program
      */
     public void require(Boolean trueToLive){
         // Can't just pass empty string to require above, will add a stack frame
