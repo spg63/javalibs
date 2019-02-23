@@ -118,21 +118,6 @@ public class TSL extends Thread{
                                 label = "[EXP] ";
                 }
 
-
-                /*
-                if(Character.getNumericValue(item.charAt(0)) == INFO)
-                    label = "[INF] ";
-                else if(Character.getNumericValue(item.charAt(0)) == TRACE)
-                    label = "[TRC] ";
-                else if(Character.getNumericValue(item.charAt(0)) == DEBUG)
-                    label = "[DBG] ";
-                else if(Character.getNumericValue(item.charAt(0)) == WARN)
-                    label = "[WAR] ";
-                else if(Character.getNumericValue(item.charAt(0)) == ERROR)
-                    label = "[ERR] ";
-                else
-                    label = "[EXP] ";
-                */
                 // Split the init lable off the string
                 String[] splitItem = item.split(" ", 2);
 
