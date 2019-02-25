@@ -7,8 +7,6 @@ package javalibs;
  */
 
 import com.google.common.collect.EvictingQueue;
-
-import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,11 +28,6 @@ public class MTOut {
     private TSL log_ = TSL.get();
     private MTOut(){}
 
-    private AtomicBoolean writelnAtomic = new AtomicBoolean();
-    private AtomicBoolean writeAtomic = new AtomicBoolean();
-    private AtomicBoolean infoAtomic = new AtomicBoolean();
-    private AtomicBoolean warnAtomic = new AtomicBoolean();
-    private AtomicBoolean errAtomic = new AtomicBoolean();
     private EvictingQueue<String> buffer = EvictingQueue.create(30);
 
     public static MTOut get(){
@@ -54,15 +47,6 @@ public class MTOut {
             if(inBuffer(msg)) return;
             Out.get().writeln(msg);
         }
-/*
-        synchronized (MTOut.class){
-            if(!this.writelnAtomic.getAndSet(true)){
-                Out.get().writeln(msg);
-            }
-            else
-                return;
-        }
-*/
     }
 
     public void write(String msg){
@@ -76,6 +60,13 @@ public class MTOut {
         synchronized (MTOut.class) {
             if(inBuffer(msg)) return;
             log_.info(msg);
+        }
+    }
+
+    public void results(String msg){
+        synchronized (MTOut.class) {
+            if(inBuffer(msg)) return;
+            log_.results(msg);
         }
     }
 

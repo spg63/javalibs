@@ -27,6 +27,7 @@ public class TSL extends Thread{
     private static final int EXCEPTION  = 3;
     private static final int TRACE      = 4;
     private static final int DEBUG      = 5;
+    private static final int RESULTS    = 6;
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
@@ -37,6 +38,7 @@ public class TSL extends Thread{
     public static boolean ALLOW_REQUIRE     = true;
     public static boolean LOG_TO_CONSOLE    = true;
     public static boolean REWRITE_LOG_FILE  = false;
+    public static boolean REWRITE_RESULTS   = true;
 
     private String SHUTDOWN_REQ;
     private volatile boolean shuttingDown, loggerTerminated;
@@ -79,19 +81,31 @@ public class TSL extends Thread{
     @Override
     public void run(){
         this.futils.checkAndCreateDir("logs");
-        PrintWriter pw = null;
+        PrintWriter logWriter = null;
+        PrintWriter resultsWriter = null;
+        PrintWriter inUseWriter = null;
         try{
             String item;
             try{
                 if(!REWRITE_LOG_FILE) {
-                    pw = new PrintWriter(
+                    logWriter = new PrintWriter(
                             new BufferedWriter(
                                     new FileWriter("logs/tslogs_" + dt + ".txt", true)));
                 }
                 else{
-                    pw = new PrintWriter(
+                    logWriter = new PrintWriter(
                             new BufferedWriter(
                                     new FileWriter(reWriteLogPath)));
+                }
+                if(!REWRITE_RESULTS) {
+                    resultsWriter = new PrintWriter(
+                            new BufferedWriter(
+                                    new FileWriter("results/results_" + dt + ".txt", true)));
+                }
+                else {
+                    resultsWriter = new PrintWriter(
+                            new BufferedWriter(
+                                    new FileWriter("results/results.txt")));
                 }
             }
             catch(IOException e){
@@ -105,17 +119,26 @@ public class TSL extends Thread{
 
                 switch(numFlag){
                     case TRACE: label = "[TRC] ";
+                                inUseWriter = logWriter;
                                 break;
                     case DEBUG: label = "[DBG] ";
+                                inUseWriter = logWriter;
                                 break;
                     case INFO:  label = "[INF] ";
+                                inUseWriter = logWriter;
                                 break;
                     case WARN:  label = "[WAR] ";
+                                inUseWriter = logWriter;
                                 break;
                     case ERROR: label = "[ERR] ";
+                                inUseWriter = logWriter;
+                                break;
+                    case RESULTS: label = "[RES] ";
+                                inUseWriter = resultsWriter;
                                 break;
                     default:
                                 label = "[EXP] ";
+                                inUseWriter = logWriter;
                 }
 
                 // Split the init lable off the string
@@ -125,8 +148,8 @@ public class TSL extends Thread{
                 sb.append(label);
                 sb.append(time_str());
                 sb.append(splitItem[1]);
-                pw.println(sb.toString());
-                pw.flush();
+                inUseWriter.println(sb.toString());
+                inUseWriter.flush();
                 if(LOG_TO_CONSOLE)
                     this.out.writeln(sb.toString());
             }
@@ -136,8 +159,27 @@ public class TSL extends Thread{
         }
         finally{
             loggerTerminated = true;
-            if(pw != null)
-                pw.close();
+            if(logWriter != null)
+                logWriter.close();
+            if(resultsWriter != null)
+                resultsWriter.close();
+            if(inUseWriter != null)
+                inUseWriter.close();
+        }
+    }
+
+    /**
+     * This is a horrible addition but I need to get results into a separate file
+     */
+    public void results(Object str){
+        if(shuttingDown || loggerTerminated) return;
+        try{
+            itemsToLog.put(RESULTS + " " + str);
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("ThreadSafeLogger.results() -- " +
+                    "Unexpected interruption");
         }
     }
 
