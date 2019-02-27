@@ -28,6 +28,7 @@ public class TSL extends Thread{
     private static final int TRACE      = 4;
     private static final int DEBUG      = 5;
     private static final int RESULTS    = 6;
+    private static final int DOLIUS     = 7;
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
@@ -83,6 +84,7 @@ public class TSL extends Thread{
         this.futils.checkAndCreateDir("logs");
         PrintWriter logWriter = null;
         PrintWriter resultsWriter = null;
+        PrintWriter doliusWriter = null;
         PrintWriter inUseWriter = null;
         try{
             String item;
@@ -107,6 +109,9 @@ public class TSL extends Thread{
                             new BufferedWriter(
                                     new FileWriter("results/results.txt")));
                 }
+                doliusWriter = new PrintWriter(
+                        new BufferedWriter(
+                                new FileWriter("logs/dolius_" + dt + ".txt", true)));
             }
             catch(IOException e){
                 out.writeln_err("*** ThreadSafeLogger IOException");
@@ -136,6 +141,8 @@ public class TSL extends Thread{
                     case RESULTS: label = "[RES] ";
                                 inUseWriter = resultsWriter;
                                 break;
+                    case DOLIUS: label = "[DOL] ";
+                                 inUseWriter = doliusWriter;
                     default:
                                 label = "[EXP] ";
                                 inUseWriter = logWriter;
@@ -179,6 +186,21 @@ public class TSL extends Thread{
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
             throw new RuntimeException("ThreadSafeLogger.results() -- " +
+                    "Unexpected interruption");
+        }
+    }
+
+    /**
+     * More horrible additons
+     */
+    public void dolius(Object str){
+        if(shuttingDown || loggerTerminated) return;
+        try{
+            itemsToLog.put(DOLIUS + " " + str);
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("ThreadSafeLogger.dolius() -- " +
                     "Unexpected interruption");
         }
     }
