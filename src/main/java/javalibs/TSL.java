@@ -143,6 +143,7 @@ public class TSL extends Thread{
                                 break;
                     case DOLIUS: label = "[DOL] ";
                                  inUseWriter = doliusWriter;
+                                 break;
                     default:
                                 label = "[EXP] ";
                                 inUseWriter = logWriter;
