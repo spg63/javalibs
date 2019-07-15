@@ -12,6 +12,7 @@ public class DirWatcher{
     private volatile boolean print_hash;
     private String hash_save_file;
     private FileHasher file_hasher;
+    private TSL log_ = TSL.get();
 
     @Override
     public boolean equals(Object o){
@@ -70,10 +71,10 @@ public class DirWatcher{
             while(log_hash){
                 hash_str = watchDir();
                 if(hash_str != null){
-                    c.log(hash_str);
+                    log_.info(hash_str);
                 }
             }
-            c.log("javalibs.Log thread killed");
+            log_.info("javalibs.Log thread killed");
         }).start();
     }
 
@@ -98,10 +99,10 @@ public class DirWatcher{
                 while(print_hash){
                     hash_str = watchDir();
                     if(hash_str != null) {
-                        c.writeln(hash_str);
+                        System.out.println(hash_str);
                     }
                 }
-                c.log("Print thread killed");
+                log_.info("Print thread killed");
             }
         }).start();
     }
@@ -145,8 +146,7 @@ public class DirWatcher{
             }
         }
         catch(Exception e){
-            c.writeln_err("WatchService Exception");
-            c.logErr("WatchService Exception");
+            log_.exception(e);
         }
 
         return null;
