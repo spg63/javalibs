@@ -28,7 +28,7 @@ public class FileHasher{
             hash_str = new BigInteger(1, hash).toString(16);
         }
         catch(Exception e){
-            c.logErr("Exception getting Hash");
+            TSL.get().exception(e);
         }
 
         return hash_str;
