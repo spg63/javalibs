@@ -301,7 +301,7 @@ public class FileUtils{
         BufferedWriter writer;
         try{
             writer = Files.newBufferedWriter(Paths.get(filename),
-                    StandardOpenOption.APPEND);
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             writer.write(str);
             writer.close();
         }
