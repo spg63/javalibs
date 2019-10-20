@@ -39,7 +39,7 @@ public class TSL extends Thread{
     public static boolean ALLOW_REQUIRE     = true;
     public static boolean LOG_TO_CONSOLE    = true;
     public static boolean REWRITE_LOG_FILE  = false;
-    public static boolean REWRITE_RESULTS   = true;
+    public static boolean REWRITE_RESULTS   = false;
 
     private String SHUTDOWN_REQ;
     private volatile boolean shuttingDown, loggerTerminated;
@@ -163,6 +163,7 @@ public class TSL extends Thread{
             }
         }
         catch(InterruptedException e){
+            e.printStackTrace();
             this.out.writeln_err("ThreadSafeLogger -- I was interrupted");
         }
         finally{
