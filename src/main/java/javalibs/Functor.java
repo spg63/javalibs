@@ -1,7 +1,7 @@
 package javalibs;
 
 /**
- * @author Sean Grimes, spg63@cs.drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 6/7/15
  */
 public interface Functor{

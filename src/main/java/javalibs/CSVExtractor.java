@@ -1,7 +1,7 @@
 package javalibs;
 /**
  * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
- * @author Sean Grimes, spg63@drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 1/1/19
  * License: MIT License
  */
@@ -151,8 +151,6 @@ public class CSVExtractor {
             TSL.get().exception(e);
         }
     }
-
-    //public static void writeCSVRecordRemoveColumn(String path, CSVRecord, )
 
     private void readCSV(){
         try{

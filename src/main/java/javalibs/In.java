@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * @author Sean Grimes, spg63@cs.drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 6/6/15
  */
 @SuppressWarnings("unused")
@@ -39,10 +39,11 @@ public class In{
             }
         }
         catch(IOException e){
-            log.err("readStr() -- IOException");
+            log.exception(e);
         }
         return line;
     }
+
     public String readStr(String msg){
         out.write(msg);
         return readStr();
@@ -59,11 +60,12 @@ public class In{
             }
         }
         catch(IOException e){
-            log.err("readInt() -- IOException");
+            log.exception(e);
         }
         //noinspection ConstantConditions
         return Integer.parseInt(line);
     }
+
     public int readInt(String msg){
         out.write(msg);
         return readInt();
@@ -80,11 +82,12 @@ public class In{
             }
         }
         catch(IOException e){
-            log.err("readDouble() -- IOException");
+            log.exception(e);
         }
         //noinspection ConstantConditions
         return Double.parseDouble(line);
     }
+
     public double readDouble(String msg){
         out.write(msg);
         return readDouble();

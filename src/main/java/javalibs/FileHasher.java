@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 
 /**
- * @author Sean Grimes, spg63@cs.drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 5/11/15
  */
 @SuppressWarnings("unused")

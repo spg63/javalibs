@@ -1,5 +1,12 @@
 package javalibs;
 
+/**
+ * Copyright (javalibs) 2019 Sean Grimes. All rights reserved.
+ * @author Sean Grimes, sean@seanpgrimes.com
+ * @since 1/31/17
+ * License: MIT License
+ */
+
 import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("WeakerAccess")

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
- * @author Sean Grimes, spg63@drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @author Andrew W.E. McDonald
  * @since 6/6/15
  * License: MIT License
@@ -57,7 +57,9 @@ public class TSL extends Thread{
         this.out = Out.get();
         this.futils = FileUtils.get();
         LocalDateTime dt = LocalDateTime.now();
-        this.dt = dt.toString().replace("T", "_").replace(":","_");
+        this.dt = dt.toString()
+                .replace("T", "_")
+                .replace(":","_");
 
         // Start the logger
         start();
@@ -92,7 +94,11 @@ public class TSL extends Thread{
                 if(!REWRITE_LOG_FILE) {
                     logWriter = new PrintWriter(
                             new BufferedWriter(
-                                    new FileWriter("logs/tslogs_" + dt + ".txt", true)));
+                                new FileWriter(
+                                    "logs/tslogs_" + dt + ".txt", true
+                                )
+                            )
+                    );
                 }
                 else{
                     logWriter = new PrintWriter(
@@ -102,7 +108,11 @@ public class TSL extends Thread{
                 if(!REWRITE_RESULTS) {
                     resultsWriter = new PrintWriter(
                             new BufferedWriter(
-                                    new FileWriter("results/results_" + dt + ".txt", true)));
+                                new FileWriter(
+                                    "results/results_" + dt + ".txt", true
+                                )
+                            )
+                    );
                 }
                 else {
                     resultsWriter = new PrintWriter(
@@ -111,7 +121,11 @@ public class TSL extends Thread{
                 }
                 doliusWriter = new PrintWriter(
                         new BufferedWriter(
-                                new FileWriter("logs/dolius_" + dt + ".txt", true)));
+                            new FileWriter(
+                                "logs/dolius_" + dt + ".txt", true
+                            )
+                        )
+                );
             }
             catch(IOException e){
                 out.writeln_err("*** ThreadSafeLogger IOException");

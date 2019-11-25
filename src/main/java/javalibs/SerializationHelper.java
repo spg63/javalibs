@@ -1,5 +1,11 @@
 package javalibs;
 
+/**
+ * Copyright (javalibs.c) 2018 Sean Grimes. All rights reserved.
+ * @author Sean Grimes, sean@seanpgrimes.com
+ * License: MIT License
+ */
+
 import java.io.*;
 
 public class SerializationHelper {

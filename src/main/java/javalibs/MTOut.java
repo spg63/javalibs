@@ -1,13 +1,12 @@
 package javalibs;
 /**
  * Copyright (javalibs.c) 2019 Sean Grimes. All rights reserved.
- * @author Sean Grimes, spg63@drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 1/31/19
  * License: MIT License
  */
 
 import com.google.common.collect.EvictingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Simple class that allows multiple threads to call the same print / log functions,
@@ -106,5 +105,4 @@ public class MTOut {
         buffer.add(msg);
         return false;
     }
-
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Sean Grimes, spg63@cs.drexel.edu
+ * @author Sean Grimes, sean@seanpgrimes.com
  * @since 6/7/15
  */
 
