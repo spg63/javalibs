@@ -23,6 +23,7 @@ import java.util.Map;
 
 public class CSVExtractor {
     private TSL log_ = TSL.get();
+    private Logic logic = Logic.get();
     private String inCSV;
     private String outCSV;
     private List<String> extractionCols;
@@ -57,8 +58,8 @@ public class CSVExtractor {
             log_.die(e);
         }
 
-        log_.require(bw != null, "BufferedWriter cannot be null");
-        log_.require(printer != null, "CSVPrinter cannot be null");
+        logic.require(bw != null, "BufferedWriter cannot be null");
+        logic.require(printer != null, "CSVPrinter cannot be null");
 
         for(CSVRecord rec: this.inRecords){
             List<String> writerCells = new ArrayList<>();
@@ -140,8 +141,8 @@ public class CSVExtractor {
             TSL.get().exception(e);
         }
 
-        TSL.get().require(bw != null, "BufferedWriter cannot be null");
-        TSL.get().require(printer != null, "CSVPrinter cannot be null");
+        Logic.get().require(bw != null, "BufferedWriter cannot be null");
+        Logic.get().require(printer != null, "CSVPrinter cannot be null");
 
         try {
             printer.printRecord(rec);

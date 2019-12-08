@@ -407,7 +407,7 @@ public class TSL extends Thread{
     /**
      * Builds the stack information string for autologging
      */
-    private String getStackInfo(Object msg){
+    public String getStackInfo(Object msg){
         // Get all stack frame for the calling thead
         StackTraceElement[] stackFrames = Thread.currentThread().getStackTrace();
 
@@ -444,41 +444,6 @@ public class TSL extends Thread{
                 "\t Function name:   " + elementOfInterest.getMethodName() + "\n" +
                 "\t Line number:     " + elementOfInterest.getLineNumber() + "\n" +
                 "\t Log message:     " + msg;
-    }
-
-    /**
-     * Similar to assertTrue, will kill the program if trueToLive is false, however it
-     * kills it from the logger, automatically giving you function, line information.
-     * Essentially the info from an exception while also letting the logger die properly
-     * @param trueToLive True or false, false dies
-     * @param msg Additional log message
-     */
-    public void require(Boolean trueToLive, Object msg){
-        // Require can be skipped if we want to live dangerously, or for, like, production
-        if(!ALLOW_REQUIRE || trueToLive || shuttingDown) return;
-        die(getStackInfo(msg));
-    }
-
-    /**
-     * Similar to assertTrue, will kill the program if trueToLive is false, however it
-     * kills it from the logger, automatically giving you function, line information.
-     * Essentially the info from an exception while also letting the logger die properly
-     * @param trueToLive If false, kills program
-     */
-    public void require(Boolean trueToLive){
-        // Can't just pass empty string to require above, will add a stack frame
-        // element to the stack frame stack
-        if(!ALLOW_REQUIRE || trueToLive || shuttingDown) return;
-        die(getStackInfo(""));
-    }
-
-    /**
-     * Kills the program while reporting the location from where the program was killed
-     * @param msg Message to be logged
-     */
-    public void dieFrom(Object msg){
-        if(shuttingDown) return;
-        die(getStackInfo(msg));
     }
 
     private String time_str(){

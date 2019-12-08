@@ -23,7 +23,7 @@ public class SerializationHelper {
     public static <T> T deserialize(Class<T> type, String path){
         // Make sure the path exists and is a file
         File tst = new File(path);
-        TSL.get().require(tst.exists() && tst.isFile());
+        Logic.get().require(tst.exists() && tst.isFile());
 
         // Create a generic Object that will hold the deserialized object
         T deserializedObject = null;
