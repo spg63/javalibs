@@ -36,7 +36,6 @@ public class TSL extends Thread{
     public static boolean LOG_DEBUG         = true;
     public static boolean LOG_INFO          = true;
     public static boolean LOG_WARN          = true;
-    //public static boolean ALLOW_REQUIRE     = true;
     public static boolean LOG_TO_CONSOLE    = true;
     public static boolean REWRITE_LOG_FILE  = false;
     public static boolean REWRITE_RESULTS   = false;

@@ -159,8 +159,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    TSL.get().err("Couldn't close the br | " +
-                            "javalibs.FileUtils.readLineByLine");
+                    TSL.get().errFrom("Couldn't close the BR");
                 }
             }
         }
