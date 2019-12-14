@@ -25,7 +25,7 @@ public class Logic {
      * @param msg Additional log message
      */
     public void require(Boolean trueToLive, Object msg) {
-        if(!ALLOW_REQUIRE) return;
+        if(!ALLOW_REQUIRE || trueToLive) return;
         log_.die(log_.getStackInfo(msg));
     }
 
@@ -36,7 +36,7 @@ public class Logic {
      * @param trueToLive If false, kills program
      */
     public void require(Boolean trueToLive) {
-        if(!ALLOW_REQUIRE) return;
+        if(!ALLOW_REQUIRE || trueToLive) return;
         log_.die(log_.getStackInfo(""));
     }
 
