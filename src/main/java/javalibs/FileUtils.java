@@ -67,12 +67,14 @@ public class FileUtils{
      * @param dirName Path to the directory
      */
     public void checkAndCreateDir(String dirName){
+        // Return early if the directory already exists
+        if(fexists(dirName)) return;
+
+        // Create the directory (and parents, if necessary)
         File tmp = new File(dirName);
-        if(!tmp.exists()) {
-            TSL.get().trace("Creating directory: " + tmp.toString());
-            if(!tmp.mkdirs())
-                TSL.get().err("Failed to create directory path: " + dirName);
-        }
+        TSL.get().trace("Creating directory: " + tmp.toString());
+        if(!tmp.mkdirs())
+            TSL.get().err("Failed to create directory path: " + dirName);
     }
 
     /**
@@ -124,8 +126,7 @@ public class FileUtils{
                     br.close();
                 }
                 catch(IOException e){
-                    TSL.get().err("Couldn't close the br | " +
-                            "javalibs.FileUtils.readFullFile");
+                    TSL.get().errFrom("Couldn't close the BR");
                 }
             }
         }

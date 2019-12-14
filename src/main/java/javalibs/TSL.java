@@ -393,16 +393,17 @@ public class TSL extends Thread{
      * NOTE: It's not a particularily fast function to call
      * @param log_message Message to add to the Class name, function name, and line number
      */
-    public void autoLog(String log_message){
-        info(getStackInfo(log_message));
-    }
+    public void autoLog(String log_message){ info(getStackInfo(log_message)); }
 
     /**
      * See full description above: autoLog call without log message
      */
-    public void autoLog(){
-        autoLog("");
-    }
+    public void autoLog(){ autoLog(""); }
+
+    /**
+     * See above for full description, substitute INFO for ERR
+     */
+    public void errFrom(String errMsg){ err(getStackInfo(errMsg)); }
 
     /**
      * Builds the stack information string for autologging
