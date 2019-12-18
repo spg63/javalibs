@@ -1,12 +1,14 @@
 package javalibs;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
 public class SysHelper {
     private static volatile SysHelper _instance;
+    public String BAD_NETWORK_ATEMPT = "TIMEOUT";
     private SysHelper(){ }
 
     public static SysHelper get(){
@@ -37,7 +39,7 @@ public class SysHelper {
 
     private String sysPropertyImlp(String key) { return System.getProperty(key); }
 
-    public String ipAddr() {
+    public String getIPAddr() {
         // Do this in a thread!!!
         URL ipChecker = null;
         BufferedReader in = null;
@@ -74,7 +76,11 @@ public class SysHelper {
      * @return Runtime reported max memory
      */
     public String maxMem() {
-        return appropriateMemoryUnit(Runtime.getRuntime().maxMemory());
+        long maxMem = Runtime.getRuntime().maxMemory();
+        if(maxMem == Long.MAX_VALUE)
+            return "JVM max memory unlimited";
+        else
+            return appropriateSizeUnit(maxMem);
     }
 
     /**
@@ -83,7 +89,7 @@ public class SysHelper {
      * @return Runtime reported total memory available *now*
      */
     public String totalMem() {
-        return appropriateMemoryUnit(Runtime.getRuntime().totalMemory());
+        return appropriateSizeUnit(Runtime.getRuntime().totalMemory());
     }
 
     /**
@@ -92,14 +98,14 @@ public class SysHelper {
      * @return Runtime reported free memory available *now*
      */
     public String freeMemory() {
-        return appropriateMemoryUnit(Runtime.getRuntime().freeMemory());
+        return appropriateSizeUnit(Runtime.getRuntime().freeMemory());
     }
 
     /*
         The most copied piece of Java ever on SO. Came with a bug, originally.
         https://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
      */
-    private String appropriateMemoryUnit(long memValue) {
+    private String appropriateSizeUnit(long memValue) {
         String s = memValue < 0 ? "-" : "";
         long b = memValue == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(memValue);
         return b < 1000L ? memValue + " B"
@@ -109,5 +115,33 @@ public class SysHelper {
                 : (b /= 1000) < 999_950L ? String.format("%s%.1f TB", s, b / 1e3)
                 : (b /= 1000) < 999_950L ? String.format("%s%.1f PB", s, b / 1e3)
                 : String.format("%s%.1f EB", s, b / 1e6);
+    }
+
+    public String diskWriteSpeed() {
+        return "";
+    }
+
+    public String diskReadSpeed() {
+        return "";
+    }
+
+    /**
+     * Attempts to get the size of the root partition
+     * NOTE: This is *NOT* robust and I only guarantee it to work on my machine
+     * @return The size of the root partition
+     */
+    public String rootTotalSpace() {
+        File[] roots = File.listRoots();
+        return appropriateSizeUnit(roots[0].getTotalSpace());
+    }
+
+    /**
+     * Attempts to get the total free space available on the root partition
+     * NOTE: This is *NOT* robust and I only guarantee it to work on my machine
+     * @return Free space on root partition
+     */
+    public String rootFreeSpace(){
+        File[] roots = File.listRoots();
+        return appropriateSizeUnit(roots[0].getUsableSpace());
     }
 }
