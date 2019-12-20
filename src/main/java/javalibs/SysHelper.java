@@ -154,7 +154,7 @@ public class SysHelper {
      * Attempts to determine the number of physical processor cores
      * @return The total physical cores if available, else an approximation
      */
-    public int getPhysicalCPUCoreCount() {
+    public int physicalCPUCoreCount() {
         if(oshiOkay)
             return this.hal.getProcessor().getPhysicalProcessorCount();
         // Most systems, with hyperthreading, run with 2 logical cores per physical
@@ -188,9 +188,9 @@ public class SysHelper {
 
     /**
      * Attemps to return the total number of logical CPUs available.
-     * @return
+     * @return Number of logical processors available
      */
-    public int getReportedCPUCoreCount() {
+    public int reportedCPUCoreCount() {
         if(oshiOkay)
             return this.hal.getProcessor().getLogicalProcessorCount();
         log.warn("Unable to guarantee results of getReportedCPUCoreCount");
@@ -202,7 +202,7 @@ public class SysHelper {
      * @return True if it seems like hyperthreading is enable, else false.
      */
     public boolean hasHyperThreading() {
-        return getReportedCPUCoreCount() > getPhysicalCPUCoreCount();
+        return reportedCPUCoreCount() > physicalCPUCoreCount();
     }
 
     /**
