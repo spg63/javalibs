@@ -2,10 +2,7 @@ package javalibs;
 
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 
 import java.io.BufferedReader;
@@ -14,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.FileStore;
 import java.util.concurrent.TimeUnit;
 
 /**
