@@ -313,8 +313,9 @@ public class SysHelper {
     public boolean runningOnAC() {
         PowerSource battery = findValidBattery();
         if(battery == null){
-            log.warn("Unable to find valid battery");
-            return false;
+            log.warn("Unable to find valid battery. runningOnAC is assuming this is due" +
+                    " to the lack of battery, and therefore, the presence of AC power");
+            return true;
         }
 
         // Let Oshi determine if verified A/C power
