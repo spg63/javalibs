@@ -21,14 +21,13 @@ public class FileUtils{
     private static volatile FileUtils _instance;
     private Out out = Out.get();
 
-    private FileUtils(){
-    }
+    private FileUtils(){ }
 
     /**
      * Get an instance
      * @return javalibs.FileUtils object
      */
-    public static FileUtils get(){
+    public static FileUtils get() {
         if(_instance == null){
             synchronized(FileUtils.class){
                 if(_instance == null){

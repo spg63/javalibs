@@ -112,7 +112,7 @@ public class SysHelper {
      */
     public String osBuildNumber() {
         if(osInfoAvailable)
-            return os.getVersionInfo().getBuildNumber();
+            return this.osFullInfo.getBuildNumber();
         log.warn("Unable to obtain OS build number");
         return "";
     }
@@ -123,7 +123,7 @@ public class SysHelper {
      */
     public String osCodeName() {
         if(osInfoAvailable)
-            return os.getVersionInfo().getCodeName();
+            return osFullInfo.getCodeName();
         log.warn("Unable to obtain OS code name");
         return "";
     }
@@ -145,7 +145,7 @@ public class SysHelper {
      */
     public String osVer() {
         if(osInfoAvailable)
-            return os.getVersionInfo().getVersion();
+            return osFullInfo.getVersion();
         log.warn("Unable to obtain OS version");
         return "";
     }
