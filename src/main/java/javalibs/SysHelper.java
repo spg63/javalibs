@@ -42,7 +42,6 @@ public class SysHelper {
     private boolean osInfoAvailable = false;
     private boolean oshiOkay = true;
 
-    public String BAD_NETWORK_ATEMPT = "NETWORK TIMEOUT";
     private TSL log;
 
     private SysHelper(){
@@ -402,46 +401,13 @@ public class SysHelper {
      */
     public String javaVer() { return sysPropertyImlp("java.version"); }
 
-    private String sysPropertyImlp(String key) { return System.getProperty(key); }
-
     /**
-     * Get the external IP address when available
-     * @return The external IP address if available else NETWORK_UNAVAILABLE
+     * Get the vendor of the JVM
+     * @return JVM vendor string
      */
-    public String externalIPAddr() {
-        URL ipChecker = null;
-        BufferedReader in = null;
-        String ip = null;
-        URLConnection urlConn = null;
-        try {
-            //ipChecker = new URL("http://checkip.amazonzws.com");
-            ipChecker = new URL("http://whatismyip.akamai.com/");
-            urlConn = ipChecker.openConnection();
-            urlConn.setConnectTimeout(2500);
-            in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-            ip = in.readLine();
-        }
-        catch (Exception e) {
-            log.exception(e);
-            return BAD_NETWORK_ATEMPT;
-        }
-        finally {
-            if(in != null) {
-                try {
-                    in.close();
-                }
-                catch(IOException e){
-                    log.exception(e);
-                }
-            }
-        }
+    public String JVMVendor() { return sysPropertyImlp("java.vendor"); }
 
-        if(ip == null){
-            return BAD_NETWORK_ATEMPT;
-        }
-
-        return ip;
-    }
+    private String sysPropertyImlp(String key) { return System.getProperty(key); }
 
     /**
      * Returns the max available memory as reported by the Runtime

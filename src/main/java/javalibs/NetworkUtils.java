@@ -1,12 +1,17 @@
 package javalibs;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class NetworkUtils {
     private static volatile NetworkUtils instance_;
+    public String BAD_NETWORK_ATEMPT = "NETWORK_TIMEOUT";
     private TSL log = TSL.get();
     private Logic logic = Logic.get();
 
@@ -83,5 +88,50 @@ public class NetworkUtils {
             log.info(host + " appears to be down.");
             return false;
         }
+    }
+
+    /**
+     * Send an error message to a host + port to be logged, probably, by that host
+     * @param msg The error messae to be sent
+     */
+
+    /**
+     * Get the external IP address when available
+     * @return The external IP address if available else NETWORK_UNAVAILABLE
+     */
+    public String externalIPAddr() {
+        URL ipChecker = null;
+        BufferedReader in = null;
+        String ip = null;
+        URLConnection urlConn = null;
+        int timeoutMillis = 2500;
+        String awesomeIPGetterWebsiteThanksForTheHelp = "http://whatismyip.akamai.com/";
+        try {
+            ipChecker = new URL(awesomeIPGetterWebsiteThanksForTheHelp);
+            urlConn = ipChecker.openConnection();
+            urlConn.setConnectTimeout(timeoutMillis);
+            in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            ip = in.readLine();
+        }
+        catch (Exception e) {
+            log.exception(e);
+            return BAD_NETWORK_ATEMPT;
+        }
+        finally {
+            if(in != null) {
+                try {
+                    in.close();
+                }
+                catch(IOException e){
+                    log.exception(e);
+                }
+            }
+        }
+
+        if(ip == null){
+            return BAD_NETWORK_ATEMPT;
+        }
+
+        return ip;
     }
 }
