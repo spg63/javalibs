@@ -92,8 +92,13 @@ public class NetworkUtils {
 
     /**
      * Send an error message to a host + port to be logged, probably, by that host
-     * @param msg The error messae to be sent
+     * @param errorMsg The error messae to be sent
+     * @return True if server acknowledges error, else false
      */
+    public boolean reportError(String errorMsg){
+        logic.dieFrom("Not yet implemented");
+        return false;
+    }
 
     /**
      * Get the external IP address when available
