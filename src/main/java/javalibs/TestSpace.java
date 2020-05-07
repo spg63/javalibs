@@ -1,6 +1,7 @@
 package javalibs;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,7 +21,7 @@ class TestSpace implements Functor{
 
     public static void main(String[] args) throws Exception {
         notMuchOfAFunction();
-        TSL.get().die();
+        //TSL.get().die();
 
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {
@@ -30,8 +31,12 @@ class TestSpace implements Functor{
         Functor method = map.get("test");
         method.execute();
 
+        List<Integer> rands = NumUtils.RandomizedList0toExclusiveNWithoutRepeats(100);
+        for(int i = 0; i < rands.size(); ++i) {
+            System.out.println("i (" + i + "): " + rands.get(i));
+        }
 
-
+        TSL.get().shutDown();
     }
 
     public static void notMuchOfAFunction(){

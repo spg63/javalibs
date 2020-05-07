@@ -108,7 +108,7 @@ public class TSL extends Thread{
                     resultsWriter = new PrintWriter(
                             new BufferedWriter(
                                 new FileWriter(
-                                    "results/results_" + dt + ".txt", true
+                                    "logs/results_" + dt + ".txt", true
                                 )
                             )
                     );
@@ -127,6 +127,7 @@ public class TSL extends Thread{
                 );
             }
             catch(IOException e){
+                e.printStackTrace();
                 out.writeln_err("*** ThreadSafeLogger IOException");
             }
 
