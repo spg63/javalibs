@@ -14,8 +14,9 @@ import java.util.List;
 
 /**
  * Database utility functions. Nonspecific to this project.
- * NOTE: All failures in this class will throw an unchecked runtime exception. For my uses a DB failure means
- * the program can't continue, this certainly isn't true for other systems
+ * NOTE: All failures in this class will throw an unchecked runtime exception. For my uses
+ * a DB failure means the program can't continue, this certainly isn't true for other
+ * systems
  */
 @SuppressWarnings("ThrowFromFinallyBlock")
 public class DBUtils {
