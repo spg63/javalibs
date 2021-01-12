@@ -32,13 +32,17 @@ public class TSL extends Thread{
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
-    public static boolean LOG_TRACE         = true;
-    public static boolean LOG_DEBUG         = true;
-    public static boolean LOG_INFO          = true;
-    public static boolean LOG_WARN          = true;
-    public static boolean LOG_TO_CONSOLE    = true;
-    public static boolean REWRITE_LOG_FILE  = false;
-    public static boolean REWRITE_RESULTS   = false;
+    public static boolean LOG_TRACE             = true;
+    public static boolean LOG_DEBUG             = true;
+    public static boolean LOG_INFO              = true;
+    public static boolean LOG_WARN              = true;
+    public static boolean LOG_TO_CONSOLE        = true;
+    // Keep trace messages in file but not on console
+    public static boolean LOG_TRACE_TO_CONSOLE  = false;
+    // Keep debug messages in file but not on console
+    public static boolean LOG_DEBUG_TO_CONSOLE  = true;
+    public static boolean REWRITE_LOG_FILE      = false;
+    public static boolean REWRITE_RESULTS       = false;
 
     private String SHUTDOWN_REQ;
     private volatile boolean shuttingDown, loggerTerminated;
@@ -138,6 +142,9 @@ public class TSL extends Thread{
 
                 switch(numFlag){
                     case TRACE: label = "[TRC] ";
+                        // Need to deal with skipping console logging if false when
+                        // message is a trace message. In these cases set log to console
+                        // to false as a temporary measure and reset it at end of function
                                 inUseWriter = logWriter;
                                 break;
                     case DEBUG: label = "[DBG] ";
