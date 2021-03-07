@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -363,8 +364,8 @@ public class SysHelper {
 
     private PowerSource findValidBattery() {
         if(!oshiOkay) return null;
-        PowerSource[] pss = hal.getPowerSources();
-        if(pss == null || pss.length <= 0) return null;
+        List<PowerSource> pss = hal.getPowerSources();
+        if(pss == null || pss.size() <= 0) return null;
 
         for(PowerSource ps : pss){
             // If any of these are true then oshi almost certainly found a battery
