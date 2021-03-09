@@ -13,24 +13,38 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("WeakerAccess")
 public class NumUtils {
-    public static double getDoubleFromStr(String aNumberIHope) {
+    /**
+     * Returns null on fail to parse
+     * @param aNumberIHope
+     * @return The double or null
+     */
+    public static Double getDoubleFromStr(String aNumberIHope) {
         double val = 0;
         try {
             val = Double.parseDouble(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().die(e);
+            TSL.get().exception(e);
+            TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
+            return null;
         }
         return val;
     }
 
-    public static long getLongFromStr(String aNumberIHope) {
+    /**
+     * Returns null on fail to parse
+     * @param aNumberIHope
+     * @return The long or null on failure
+     */
+    public static Long getLongFromStr(String aNumberIHope) {
         long val = 0;
         try{
             val = Long.parseLong(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().die(e);
+            TSL.get().exception(e);
+            TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
+            return null;
         }
         return val;
     }
