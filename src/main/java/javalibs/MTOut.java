@@ -69,6 +69,13 @@ public class MTOut {
         }
     }
 
+    public void swarm(String msg) {
+        synchronized (MTOut.class) {
+            if(inBuffer(msg)) return;
+            log_.swarm(msg);
+        }
+    }
+
     public void debug(String msg){
         synchronized (MTOut.class){
             if(inBuffer(msg)) return;

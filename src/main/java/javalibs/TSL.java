@@ -29,6 +29,7 @@ public class TSL extends Thread{
     private static final int DEBUG      = 5;
     private static final int RESULTS    = 6;
     private static final int DOLIUS     = 7;
+    private static final int SWARM      = 8;
 
     private static volatile TSL _instance;
     private static String reWriteLogPath = "logs" + File.separator + "tslog.log";
@@ -90,6 +91,7 @@ public class TSL extends Thread{
         PrintWriter logWriter = null;
         PrintWriter resultsWriter = null;
         PrintWriter doliusWriter = null;
+        PrintWriter swarmWriter = null;
         PrintWriter inUseWriter = null;
         try{
             String item;
@@ -129,6 +131,14 @@ public class TSL extends Thread{
                             )
                         )
                 );
+                swarmWriter = new PrintWriter(
+                        new BufferedWriter(
+                                new FileWriter(
+                                        "logs/swarmRes_" + dt + ".txt", true
+                                )
+                        )
+                );
+
             }
             catch(IOException e){
                 e.printStackTrace();
@@ -165,6 +175,9 @@ public class TSL extends Thread{
                     case DOLIUS: label = "[DOL] ";
                                  inUseWriter = doliusWriter;
                                  break;
+                    case SWARM: label = "[SWM] ";
+                                inUseWriter = swarmWriter;
+                                break;
                     default:
                                 label = "[EXP] ";
                                 inUseWriter = logWriter;
@@ -195,6 +208,21 @@ public class TSL extends Thread{
                 resultsWriter.close();
             if(inUseWriter != null)
                 inUseWriter.close();
+        }
+    }
+
+    /**
+     * Another horrible addition but I need swarm separate from results for identifying
+     */
+    public void swarm(Object str){
+        if(shuttingDown || loggerTerminated) return;
+        try {
+            itemsToLog.put(SWARM + " " + str);
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("ThreadSafeLogger.swarm() -- " +
+                    "Unexpected interruption");
         }
     }
 
