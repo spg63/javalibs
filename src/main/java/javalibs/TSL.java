@@ -145,8 +145,8 @@ public class TSL extends Thread{
                 out.writeln_err("*** ThreadSafeLogger IOException");
             }
 
+            String label;
             while(!(item = (String)itemsToLog.take()).equals(SHUTDOWN_REQ)){
-                String label;
 
                 int numFlag = Character.getNumericValue(item.charAt(0));
 
@@ -379,7 +379,7 @@ public class TSL extends Thread{
             itemsToLog.put(SHUTDOWN_REQ);
             // Force a pause of the main thread to give the logger thread a chance to
             // write all data to the file system
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         }
         catch(InterruptedException e){
             throw new RuntimeException("ThreadSafeLogger.shutDown() -- " +
@@ -419,6 +419,12 @@ public class TSL extends Thread{
         die();
     }
 
+    public void die(Exception e, String log_message) {
+        exception(e);
+        err(log_message);
+        die();
+    }
+
     /**
      * This function will automatically log an INFO message for the calling class name,
      * function name, and line number of the function call. It also accepts an optional
@@ -439,6 +445,10 @@ public class TSL extends Thread{
      * See above for full description, substitute INFO for ERR
      */
     public void errFrom(String errMsg){ err(getStackInfo(errMsg)); }
+
+    public void exceptionFromAndDie(Exception e){
+        // TODO Implement
+    }
 
     /**
      * Builds the stack information string for autologging

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class CSVExtractor {
@@ -95,8 +96,7 @@ public class CSVExtractor {
                     colVal = rec.get(col);
                 }
                 catch(IllegalArgumentException e){
-                    log_.err("Could not find column: " + col);
-                    log_.die(e);
+                    log_.die(e, "Could not find column: " + col);
                 }
                 writerCells.add(colVal);
             }
@@ -187,6 +187,46 @@ public class CSVExtractor {
         catch(IOException e){
             TSL.get().exception(e);
         }
+    }
+
+    public static void appendRecord(String path, List<String> row, String[] headers) {
+        BufferedWriter bw = null;
+        CSVPrinter printer = null;
+        CSVFormat csvFormat = null;
+        if(headers != null) {
+            // Only write the header if the file doesn't already exist
+            csvFormat =
+                    CSVFormat.DEFAULT
+                            .withHeader(headers)
+                            .withSkipHeaderRecord(FileUtils.get().fexists(path));
+        }
+        else {
+            csvFormat = CSVFormat.DEFAULT;
+        }
+
+        try{
+            bw = Files.newBufferedWriter(
+                    Paths.get(path),
+                    StandardOpenOption.APPEND,
+                    StandardOpenOption.CREATE
+            );
+            printer = new CSVPrinter(bw, csvFormat);
+        }
+        catch(IOException e){
+            TSL.get().exception(e);
+        }
+
+        Logic.get().require(bw != null, "BufferedWriter cannot be null");
+        Logic.get().require(printer != null, "CSVPrinter cannot be null");
+
+        try {
+            printer.printRecord(row);
+            printer.flush();
+        }
+        catch(IOException e) {
+            TSL.get().exception(e);
+        }
+
     }
 
     private void readCSV(){
