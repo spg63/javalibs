@@ -24,8 +24,8 @@ public class NumUtils {
             val = Double.parseDouble(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().exception(e);
-            TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
+            //TSL.get().exception(e);
+            //TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
             return null;
         }
         return val;
@@ -42,8 +42,8 @@ public class NumUtils {
             val = Long.parseLong(aNumberIHope);
         }
         catch(NumberFormatException e){
-            TSL.get().exception(e);
-            TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
+            //TSL.get().exception(e);
+            //TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
             return null;
         }
         return val;
