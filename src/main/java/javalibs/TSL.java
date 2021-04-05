@@ -42,7 +42,7 @@ public class TSL extends Thread{
     public static boolean LOG_TRACE_TO_CONSOLE  = false;
     // Keep debug messages in file but not on console
     public static boolean LOG_DEBUG_TO_CONSOLE  = true;
-    public static boolean REWRITE_LOG_FILE      = false;
+    public static boolean REWRITE_LOG_FILE      = true;
     public static boolean REWRITE_RESULTS       = false;
 
     private String SHUTDOWN_REQ;
