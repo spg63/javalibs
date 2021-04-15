@@ -53,6 +53,10 @@ public class NumUtils {
         return ThreadLocalRandom.current().nextInt(start, end + 1);
     }
 
+    public static double randomBoundedExclusiveDouble(double start, double end) {
+        return ThreadLocalRandom.current().nextDouble(start, end);
+    }
+
     public static List<Integer> RandomizedList0toExclusiveNWithoutRepeats(int exclusiveEnd) {
         List<Integer> numList = new ArrayList();
         List<Integer> randList = new ArrayList();

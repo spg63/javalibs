@@ -108,7 +108,7 @@ public class NetworkUtils {
         URL ipChecker = null;
         BufferedReader in = null;
         String ip = null;
-        URLConnection urlConn = null;
+        URLConnection urlConn;
         int timeoutMillis = 2500;
         String awesomeIPGetterWebsiteThanksForTheHelp = "http://whatismyip.akamai.com/";
         try {
