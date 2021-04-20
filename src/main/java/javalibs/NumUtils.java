@@ -73,7 +73,6 @@ public class NumUtils {
         return randList;
     }
 
-
     public static double normalizeBetweenZeroOne(double min, double max, double val) {
         return (val - min) / (max - min);
     }
