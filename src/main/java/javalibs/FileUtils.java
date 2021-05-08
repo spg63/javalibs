@@ -10,6 +10,7 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import java.io.*;
 import java.nio.file.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -360,5 +361,28 @@ public class FileUtils{
     public BufferedReader getBufferedReaderForZipFile(String filePath){
         throw new RuntimeException("Currently no support for archiving formats, " +
                 "only compressors");
+    }
+
+    /**
+     *
+     * @param path Path to file to mod time
+     * @param newModTime Mod time in string format MM/dd/yyyy
+     * @return
+     */
+    public boolean changeModTime(String path, String newModTime) {
+        if(!fexists(path)) return false;
+
+        File f = new File(path);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+        Date modTime;
+        try {
+            modTime = sdf.parse(newModTime);
+        }
+        catch(Exception e) {
+            return false;
+        }
+
+        return f.setLastModified(modTime.getTime());
     }
 }
