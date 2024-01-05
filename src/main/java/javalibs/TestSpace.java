@@ -20,8 +20,13 @@ class TestSpace implements Functor{
     }
 
     public static void main(String[] args) throws Exception {
-        notMuchOfAFunction();
-        //TSL.get().die();
+        if(NetworkUtils.get().pingWebHost("google.com"))
+            TSL.get().info("Google is up");
+        else
+            TSL.get().info("Google is down");
+        
+        TSL.get().info(NetworkUtils.get().externalIPAddr());
+
 
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {
@@ -31,10 +36,6 @@ class TestSpace implements Functor{
         Functor method = map.get("test");
         method.execute();
 
-        List<Integer> rands = NumUtils.RandomizedList0toExclusiveNWithoutRepeats(100);
-        for(int i = 0; i < rands.size(); ++i) {
-            System.out.println("i (" + i + "): " + rands.get(i));
-        }
 
         TSL.get().shutDown();
     }

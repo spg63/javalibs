@@ -91,6 +91,15 @@ public class NetworkUtils {
     }
 
     /**
+     * Attempts to ping a web server on port 80 with timeout of 1000ms
+     * @param host
+     * @return True is host respondes, else false
+     */
+    public boolean pingWebHost(String host) {
+        return pingHost(host, 80, 1000);
+    }
+
+    /**
      * Send an error message to a host + port to be logged, probably, by that host
      * @param errorMsg The error messae to be sent
      * @return True if server acknowledges error, else false
