@@ -38,7 +38,7 @@ public class Timer {
     }
 
     /**
-     * Get the total execution time in nanoseconds, excluding the paused time
+     * Get the total paused time in nanoseconds
      * @return Timer in nanoseconds, excluding pause time
      */
     public long getTotalPausedTimeNano() {
@@ -51,7 +51,7 @@ public class Timer {
      */
     public long seconds() {
         long duration = totalElapsedNano() / 1_000_000_000;
-        // If paused nanu < 1 second this will be 0, that is intentional
+        // If paused nano < 1 second this will be 0, that is intentional
         long paused = getTotalPausedTimeNano() / 1_000_000_000;
         return duration - paused;
     }
@@ -91,34 +91,3 @@ public class Timer {
         return this.stop - this.start;
     }
 }
-
-
-/*
-import java.util.concurrent.TimeUnit;
-
-// Program to measure elapsed time in Java
-class TimeUtil
-{
-	public static void main(String[] args) throws InterruptedException {
-
-		long startTime = System.nanoTime();
-
-		 ... the code being measured starts ...
-
-// sleep for 5 seconds
-		TimeUnit.SECONDS.sleep(5);
-
-                 ... the code being measured ends ...
-
-                long endTime = System.nanoTime();
-
-                // get difference of two nanoTime values
-                long timeElapsed = endTime - startTime;
-
-                System.out.println("Execution time in nanoseconds  : " + timeElapsed);
-
-                System.out.println("Execution time in milliseconds : " +
-                timeElapsed / 1000000);
-                }
-                }
- */

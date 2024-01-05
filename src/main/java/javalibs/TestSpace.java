@@ -20,13 +20,10 @@ class TestSpace implements Functor{
     }
 
     public static void main(String[] args) throws Exception {
-        if(NetworkUtils.get().pingWebHost("google.com"))
-            TSL.get().info("Google is up");
-        else
-            TSL.get().info("Google is down");
-        
-        TSL.get().info(NetworkUtils.get().externalIPAddr());
-
+        if(Validation.Int("a"))
+            TSL.get().info("is an int");
+        else 
+            TSL.get().info("Not an int");
 
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {
