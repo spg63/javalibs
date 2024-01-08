@@ -62,7 +62,6 @@ public class SysHelper {
             log.trace("Ohsi initialized properly");
         }
 
-
         if(this.oshiOkay) {
             this.osFullInfo = this.os.getVersionInfo();
             if (this.osFullInfo != null) {
@@ -161,6 +160,7 @@ public class SysHelper {
         // core. This is not uniform, e.g. SPARC CPUs run more than 2 logical cores.
         // This is an attempt based on the hardware *I* use.
         log.warn("Attempting to approximate physical CPU core count");
+        log.warn("This is the number of processors available to the JVM"); 
         return Runtime.getRuntime().availableProcessors() / 2;
     }
 

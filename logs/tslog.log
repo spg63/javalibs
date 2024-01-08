@@ -1,1 +1,7 @@
-[INF] (14:54:47.845) > Not an int
+[INF] (15:54:34.613) > Not an int
+[TRC] (15:54:34.727) > Ohsi initialized properly
+[TRC] (15:54:34.728) > Ohsi full OS information available
+[WAR] (15:54:34.728) > Attempting to approximate physical CPU core count
+[WAR] (15:54:34.728) > This is the number of processors available to the JVM
+[INF] (15:54:34.728) > CPU Core Count: 5
+[INF] (15:54:34.729) > Avail CPU: 10

@@ -20,10 +20,11 @@ class TestSpace implements Functor{
     }
 
     public static void main(String[] args) throws Exception {
+        TSL log = TSL.get();
         if(Validation.Int("a"))
-            TSL.get().info("is an int");
+            log.info("is an int");
         else 
-            TSL.get().info("Not an int");
+            log.get().info("Not an int");
 
         Map<String, Functor> map = new HashMap<>();
         map.put("test", () -> {
@@ -33,8 +34,9 @@ class TestSpace implements Functor{
         Functor method = map.get("test");
         method.execute();
 
-
-        TSL.get().shutDown();
+        log.info("CPU Core Count: " + SysHelper.get().physicalCPUCoreCount());
+        log.info("Avail CPU: " + Runtime.getRuntime().availableProcessors());
+        log.shutDown();
     }
 
     public static void notMuchOfAFunction(){
