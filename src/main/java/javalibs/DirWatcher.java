@@ -7,12 +7,12 @@ import java.nio.file.*;
  * @since 5/11/15
  */
 public class DirWatcher{
-    private String dir_path;
-    private volatile boolean log_hash;
-    private volatile boolean print_hash;
-    private String hash_save_file;
-    private FileHasher file_hasher;
-    private TSL log_ = TSL.get();
+    private String dirPath;
+    private volatile boolean logHash;
+    private volatile boolean printHash;
+    private String hashSaveFile;
+    private final FileHasher fileHasher = FileHasher.get();
+    private final TSL log = TSL.get();
 
     @Override
     public boolean equals(Object o){
@@ -21,60 +21,60 @@ public class DirWatcher{
 
         DirWatcher that = (DirWatcher) o;
 
-        if(!dir_path.equals(that.dir_path)) return false;
-        if(!hash_save_file.equals(that.hash_save_file)) return false;
-        return file_hasher.equals(that.file_hasher);
-
+        if(!dirPath.equals(that.dirPath)) return false;
+        return hashSaveFile.equals(that.hashSaveFile);
     }
 
     @Override
     public int hashCode(){
-        int result = dir_path.hashCode();
-        result = 31 * result + hash_save_file.hashCode();
-        result = 31 * result + file_hasher.hashCode();
+        int result = dirPath.hashCode();
+        result = 31 * result + hashSaveFile.hashCode();
         return result;
     }
 
     public DirWatcher(){
-        this.log_hash = true;
-        this.print_hash = true;
-        this.file_hasher = new FileHasher();
+        this.logHash = true;
+        this.printHash = true;
     }
 
     /**
      * Allow the user to stop the hashing without killing the instance
-     * Can be restarted by called watchAndLogHash or watchAndPrintHash
+     * Can be restarted by calling watchAndLogHash or watchAndPrintHash
      */
     public void killLogWatcher(){
-        this.log_hash = false;
+        this.logHash = false;
     }
+
     public void killPrintWatcher(){
-        this.print_hash = false;
+        this.printHash = false;
     }
 
     /**
      * Watches the directory specified at instantiation
      * Will hash any new or modified files
-     * javalibs.Log format: filename: hash string
+     * Log format: filename: hash string
      * Will not delete old hashes for modified files (yet...)
      */
-    // NOTE: Lambda version, see watchAndPrintHash for anon-function version
-    public void watchAndLogHash(String path, String save_file){
-        // The dir we're watching
-        this.dir_path = path;
-        // Setup the save_file
-        this.hash_save_file = save_file;
-        // Reset boolean to true if method called again
-        this.log_hash = true;
+    public void watchAndLogHash(String path, String saveFile){
+        this.dirPath = path;
+        this.hashSaveFile = saveFile;
+        this.logHash = true;
         new Thread(() -> {
-            String hash_str = null;
-            while(log_hash){
-                hash_str = watchDir();
-                if(hash_str != null){
-                    log_.info(hash_str);
+            try(WatchService watcher = FileSystems.getDefault().newWatchService()){
+                Paths.get(dirPath).register(watcher,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_MODIFY);
+                while(logHash){
+                    String hashStr = watchDir(watcher);
+                    if(hashStr != null){
+                        log.info(hashStr);
+                    }
                 }
             }
-            log_.info("javalibs.Log thread killed");
+            catch(Exception e){
+                log.exception(e);
+            }
+            log.info("Log thread killed");
         }).start();
     }
 
@@ -86,67 +86,58 @@ public class DirWatcher{
      * Watches the directory specified at instantiation
      * Will hash any new or modified files
      * Print format: filename: hash string
-     * Will not delete old hashes for modified file (yet...)
+     * Will not delete old hashes for modified files (yet...)
      */
-    @SuppressWarnings("Convert2Lambda")
     public void watchAndPrintHash(String path){
-        this.dir_path = path;
-        this.print_hash = true;
-        new Thread(new Runnable(){
-            @Override
-            public void run(){
-                String hash_str = null;
-                while(print_hash){
-                    hash_str = watchDir();
-                    if(hash_str != null) {
-                        System.out.println(hash_str);
+        this.dirPath = path;
+        this.printHash = true;
+        new Thread(() -> {
+            try(WatchService watcher = FileSystems.getDefault().newWatchService()){
+                Paths.get(dirPath).register(watcher,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_MODIFY);
+                while(printHash){
+                    String hashStr = watchDir(watcher);
+                    if(hashStr != null){
+                        Out.get().writeln(hashStr);
                     }
                 }
-                log_.info("Print thread killed");
             }
+            catch(Exception e){
+                log.exception(e);
+            }
+            log.info("Print thread killed");
         }).start();
     }
 
     /**
-     * Hashes any files that are created or modified in the watched directory
+     * Hashes any files that are created or modified in the watched directory.
      * Returns null for:
-     *  Attempts to hash directory
+     *  Attempts to hash a directory
      *  Attempts to hash sym links
      *  Probably some other things
      * @return hash string or null
      */
-    private String watchDir(){
-        Path this_dir;
-        if(this.dir_path != null)
-            this_dir = Paths.get(dir_path);
-        else
-            return null;
+    private String watchDir(WatchService watcher){
+        if(this.dirPath == null) return null;
 
         try{
-            WatchService watcher = FileSystems.getDefault().newWatchService();
-            this_dir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
-                                        StandardWatchEventKinds.ENTRY_MODIFY);
             WatchKey watchKey = watcher.take();
-
             for(WatchEvent<?> event : watchKey.pollEvents()){
                 WatchEvent.Kind<?> kind = event.kind();
 
-                // ENTRY.DELETE isn't registered, but lets double check.
+                // ENTRY_DELETE isn't registered, but lets double check
                 if("ENTRY_CREATE".equals(kind.name()) ||
                         "ENTRY_MODIFY".equals(kind.name())){
 
-                    // Name of the newly created file
-                    String file_name = event.context().toString();
-
-                    // Full path to that file
-                    String path = this_dir+"/"+file_name;
-
-                    return file_name+": "+this.file_hasher.hash(path);
+                    String fileName = event.context().toString();
+                    String fullPath = Paths.get(dirPath, fileName).toString();
+                    return fileName + ": " + fileHasher.hash(fullPath);
                 }
             }
         }
         catch(Exception e){
-            log_.exception(e);
+            log.exception(e);
         }
 
         return null;

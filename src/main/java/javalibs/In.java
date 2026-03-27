@@ -3,6 +3,7 @@ package javalibs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 
 /**
  * @author Sean Grimes, sean@seanpgrimes.com
@@ -13,6 +14,7 @@ public class In{
     private static volatile In _instance;
     private Out out = Out.get();
     private TSL log = TSL.get();
+    private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 
     private In(){ }
@@ -29,17 +31,17 @@ public class In{
     }
 
     public String readStr(){
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String line = "-1";
         try{
-            line = in.readLine();
-            while(line == null || line.length() == 0){
+            line = reader.readLine();
+            while(line == null || line.isEmpty()){
                 out.writeln("Please enter valid input of at least 1 char");
-                line = in.readLine();
+                line = reader.readLine();
             }
         }
         catch(IOException e){
             log.exception(e);
+            throw new UncheckedIOException(e);
         }
         return line;
     }
@@ -50,20 +52,19 @@ public class In{
     }
 
     public int readInt(){
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String line = "-1";
         try{
-            line = in.readLine();
-            while(line == null || line.length() == 0 || (!Validation.Int(line))){
+            line = reader.readLine();
+            while(line == null || line.isEmpty() || (!Validation.Int(line))){
                 out.writeln("Enter a valid int");
-                line = in.readLine();
+                line = reader.readLine();
             }
         }
         catch(IOException e){
             log.exception(e);
+            throw new UncheckedIOException(e);
         }
-        //noinspection ConstantConditions
-        return Integer.parseInt(line);
+return Integer.parseInt(line);
     }
 
     public int readInt(String msg){
@@ -72,20 +73,19 @@ public class In{
     }
 
     public double readDouble(){
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String line = "-1";
         try{
-            line = in.readLine();
-            while(line == null || line.length() == 0 || (!Validation.Double(line))){
-                out.writeln("Enter a valid int");
-                line = in.readLine();
+            line = reader.readLine();
+            while(line == null || line.isEmpty() || (!Validation.Double(line))){
+                out.writeln("Enter a valid double");
+                line = reader.readLine();
             }
         }
         catch(IOException e){
             log.exception(e);
+            throw new UncheckedIOException(e);
         }
-        //noinspection ConstantConditions
-        return Double.parseDouble(line);
+return Double.parseDouble(line);
     }
 
     public double readDouble(String msg){

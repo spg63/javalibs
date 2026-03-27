@@ -5,28 +5,37 @@ package javalibs;
  * License: MIT License
  */
 
-
-import org.sqlite.SQLiteConfig;
-
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 
 /**
- * Database utility functions. Nonspecific to this project.
- * NOTE: All failures in this class will throw an unchecked runtime exception. For my uses
- * a DB failure means the program can't continue, this certainly isn't true for other
- * systems
+ * Database utility functions.
+ *
+ * @deprecated This class is being phased out. Use the focused replacements instead:
+ *   <ul>
+ *     <li>{@link DBConnection} — connect / disconnect</li>
+ *     <li>{@link DBQuery}      — select / selectAll / closeResultSet</li>
+ *     <li>{@link DBUpdate}     — insert / delete / execute / insertAll / deleteAll</li>
+ *   </ul>
+ * All methods here delegate to those classes. Existing callers continue to work without
+ * changes — migrate at your own pace.
  */
-@SuppressWarnings("ThrowFromFinallyBlock")
+@Deprecated
+@SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
 public class DBUtils {
-    private static volatile DBUtils _instance = null;
-    private static final int QUERY_TIMEOUT = 240;
+    private static volatile DBUtils _instance;
+    private final DBConnection dbc = DBConnection.get();
+    private final DBQuery dbq = DBQuery.get();
+    private final DBUpdate dbu = DBUpdate.get();
 
     private DBUtils(){}
+
+    /** @deprecated Use {@link DBConnection}, {@link DBQuery}, or {@link DBUpdate} */
+    @Deprecated
     public static DBUtils get(){
         if(_instance == null){
-            synchronized (DBUtils.class){
+            synchronized(DBUtils.class){
                 if(_instance == null){
                     _instance = new DBUtils();
                 }
@@ -35,344 +44,92 @@ public class DBUtils {
         return _instance;
     }
 
-    /**
-     * Return a connection to the database string, if valid, using the DB driver and DB
-     * url prefix set in Finals
-     * @param db Path to your DB
-     * @param dbURL The URL for the DB (e.g. jdbc:sqlite:)
-     * @param dbDriverClassName The name of your DB driver (e.g. org.sqlite.JDBC)
-     * @param enforceForeignKeys Should be true if you want foreign keys enforced on your
-     *                           table(s), false otherwise to increase DB performance
-     * @return The connection
-     */
-    @SuppressWarnings("ConstantConditions")
+    /** @deprecated Use {@link DBConnection#connect} */
+    @Deprecated
     public Connection connect(String db, String dbURL, String dbDriverClassName,
                               boolean enforceForeignKeys){
-        String connString = dbURL + db;
-        Connection conn = null;
-        try{
-            Class.forName(dbDriverClassName);
-            SQLiteConfig config = new SQLiteConfig();
-            // This is necessary to enforce foreign keys, happens on *every* connection
-            if(enforceForeignKeys)
-                config.enforceForeignKeys(true);
-            conn = DriverManager.getConnection(connString, config.toProperties());
-        }
-        catch(SQLException | ClassNotFoundException e){
-            e.printStackTrace();
-            if(conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    // Die unchecked
-                    throw new RuntimeException("javalibs.DBUtils.connect failure");
-                }
-            }
-            // Die unchecked
-            throw new RuntimeException("javalibs.DBUtils.connect failure");
-        }
-        return conn;
+        return dbc.connect(db, dbURL, dbDriverClassName, enforceForeignKeys);
     }
 
+    /** @deprecated Use {@link DBConnection#disconnect} */
+    @Deprecated
     public void disconnect(Connection conn){
-        try{
-            conn.close();
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            // Die unchecked
-            throw new RuntimeException("javalibs.DBUtils.disconnect failure");
-        }
+        dbc.disconnect(conn);
     }
 
-    /**
-     * Perform a DB insertion.
-     * NOTE: The connection will not be closed for you
-     * @param conn The connection to the DB
-     * @param SQLStatement The SQLstatement, as a string
-     */
+    /** @deprecated Use {@link DBUpdate#insert(Connection, String)} */
+    @Deprecated
     public void insert(Connection conn, String SQLStatement){
-        executeGenericUpdate(conn, SQLStatement);
+        dbu.insert(conn, SQLStatement);
     }
 
-    /**
-     * Perform a DB operation not related to insert, delete, update
-     * @param conn The Connection
-     * @param SQLStatement The SQLStatement
-     */
-    public void execute(Connection conn, String SQLStatement){
-        executeGenericUpdate(conn, SQLStatement);
-    }
-
-    /**
-     * Perform a DB insertion
-     * NOTE: There is no connection to close
-     * @param db The path to the DB
-     * @param SQLStatement The SQLstatement, as a string
-     * @param dbURL The URL for the db
-     * @param dbDriverClassName The name of your DB driver class
-     */
+    /** @deprecated Use {@link DBUpdate#insert(String, String, String, String, boolean)} */
+    @Deprecated
     public void insert(String db, String dbURL, String dbDriverClassName,
-                       String SQLStatement, boolean enforceForeignKeys) {
-        executeGenericUpdate(
-                db, dbURL, dbDriverClassName, SQLStatement, enforceForeignKeys
-        );
+                       String SQLStatement, boolean enforceForeignKeys){
+        dbu.insert(db, dbURL, dbDriverClassName, SQLStatement, enforceForeignKeys);
     }
 
-    /**
-     * Perform a DB deletion operation
-     * NOTE: The connection will not be closed for you
-     * @param conn The connection to the DB
-     * @param SQLStatement The SQLStatement, as a string
-     */
+    /** @deprecated Use {@link DBUpdate#execute} */
+    @Deprecated
+    public void execute(Connection conn, String SQLStatement){
+        dbu.execute(conn, SQLStatement);
+    }
+
+    /** @deprecated Use {@link DBUpdate#delete(Connection, String)} */
+    @Deprecated
     public void delete(Connection conn, String SQLStatement){
-        executeGenericUpdate(conn, SQLStatement);
+        dbu.delete(conn, SQLStatement);
     }
 
-    /**
-     * Perform a DB deletion operation
-     * NOTE: There is no connection to close
-     * @param db The path to the DB
-     * @param SQLStatement The SQL Statement, as a string
-     * @param dbURL The URL for the db
-     * @param dbDriverClassName The name of your DB driver class
-     */
+    /** @deprecated Use {@link DBUpdate#delete(String, String, String, String, boolean)} */
+    @Deprecated
     public void delete(String db, String dbURL, String dbDriverClassName,
-                       String SQLStatement, boolean enforceForeignKeys) {
-        executeGenericUpdate(
-                db, dbURL, dbDriverClassName, SQLStatement, enforceForeignKeys
-        );
+                       String SQLStatement, boolean enforceForeignKeys){
+        dbu.delete(db, dbURL, dbDriverClassName, SQLStatement, enforceForeignKeys);
     }
 
-    /**
-     * Executes a batch insertion. There is no batch size limit. This function assumes
-     * the user has properly split the insertion into manageable chunks.
-     * NOTE: The connection will not be closed for you
-     * @param conn The DB Connection
-     * @param SQLStatements A list of SQL statements
-     */
+    /** @deprecated Use {@link DBUpdate#insertAll(Connection, List)} */
+    @Deprecated
     public void insertAll(Connection conn, List<String> SQLStatements){
-        executeBatchUpdate(conn, SQLStatements);
+        dbu.insertAll(conn, SQLStatements);
     }
 
-    /**
-     * Executes a batch insertion. There is no batch size limit. This function assumes
-     * the user has properly split the insertion into manageable chunks.
-     * NOTE: There is no connection to close
-     * @param db The path to the DB
-     * @param SQLStatements A list of SQL statements
-     * @param dbURL The URL for the db
-     * @param dbDriverClassName The name of your DB driver class
-     */
+    /** @deprecated Use {@link DBUpdate#insertAll(String, String, String, List, boolean)} */
+    @Deprecated
     public void insertAll(String db, String dbURL, String dbDriverClassName,
                           List<String> SQLStatements, boolean enforceForeignKeys){
-        executeBatchUpdate(
-                db, dbURL, dbDriverClassName, SQLStatements, enforceForeignKeys
-        );
+        dbu.insertAll(db, dbURL, dbDriverClassName, SQLStatements, enforceForeignKeys);
     }
 
-    /**
-     * Executs a batch deletion. There is no batch size limit. This function assumes the
-     * user has properly split the deletion into manageable chunks.
-     * NOTE: The connection will not be closed for you
-     * @param conn The DB connection
-     * @param SQLStatements A list of SQL statements
-     */
+    /** @deprecated Use {@link DBUpdate#deleteAll(Connection, List)} */
+    @Deprecated
     public void deleteAll(Connection conn, List<String> SQLStatements){
-        executeBatchUpdate(conn, SQLStatements);
+        dbu.deleteAll(conn, SQLStatements);
     }
 
-    /**
-     * Executs a batch deletion. There is no batch size limit. This function assumes the
-     * user has properly split the deletion into manageable chunks.
-     * @param db The path to the DB
-     * @param SQLStatements A list of SQL statements
-     * @param dbURL The URL for the db
-     * @param dbDriverClassName The name of your DB driver class
-     */
+    /** @deprecated Use {@link DBUpdate#deleteAll(String, String, String, List, boolean)} */
+    @Deprecated
     public void deleteAll(String db, String dbURL, String dbDriverClassName,
                           List<String> SQLStatements, boolean enforceForeignKeys){
-        executeBatchUpdate(
-                db, dbURL, dbDriverClassName, SQLStatements, enforceForeignKeys
-        );
+        dbu.deleteAll(db, dbURL, dbDriverClassName, SQLStatements, enforceForeignKeys);
     }
 
-    /**
-     * Get a single result set from a single selection statement
-     * NOTE: The connection must remain open while you require access to the ResultSet
-     * @param conn The connection to the DB
-     * @param SQLStatement SQL select statement
-     * @return A ResultSet if the selection was successful
-     */
+    /** @deprecated Use {@link DBQuery#select} */
+    @Deprecated
     public ResultSet select(Connection conn, String SQLStatement){
-        Statement stmt;
-        ResultSet rs;
-        try {
-            stmt = conn.createStatement();
-            stmt.setFetchSize(1000);
-            rs = stmt.executeQuery(SQLStatement);
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            // Die unchecked
-            throw new RuntimeException("javalibs.DBUtils.select failure");
-        }
-
-        return rs;
+        return dbq.select(conn, SQLStatement);
     }
 
-    /**
-     * Close a ResultSet object, handling the try / catch
-     * @param rs The ResultSet
-     */
+    /** @deprecated Use {@link DBQuery#closeResultSet} */
+    @Deprecated
     public void closeResultSet(ResultSet rs){
-        try{
-            rs.close();
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            // Die unchecked
-            throw new RuntimeException("javalibs.DBUtils.closeResultSet failure");
-        }
+        dbq.closeResultSet(rs);
     }
 
-    /**
-     * Performs a batch selection
-     * NOTE: The connection must remain open while you require access to the ResultSet
-     * @param conn The connection to the DB
-     * @param SQLStatements SQL select statements
-     * @return A list of ResultSet objects if the selections were successful
-     */
+    /** @deprecated Use {@link DBQuery#selectAll} */
+    @Deprecated
     public List<ResultSet> selectAll(Connection conn, List<String> SQLStatements){
-        TSL.get().warn("javalibs.DBUtils.selectAll called; unoptimized.");
-        List<ResultSet> results = new ArrayList<>();
-        for(String sql : SQLStatements)
-            results.add(select(conn, sql));
-        return results;
-    }
-
-    /*
-        ** NO JAVADOC **
-        * Executes a batch update for insert / delete. Manages the Connection object
-        * itself
-     */
-    private void executeBatchUpdate(
-            String db, String dbURL, String dbDriverClassName,
-            List<String> SQLStatements, boolean enforceForeignKeys){
-
-        Connection conn = connect(db, dbURL, dbDriverClassName, enforceForeignKeys);
-        executeBatchUpdate(conn, SQLStatements);
-        try{
-            conn.close();
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            // Die unchecked
-            throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
-        }
-    }
-
-    /*
-        ** NO JAVADOC **
-        * Excutes a batch update for insert / delete. Does not close the connection object
-     */
-    private void executeBatchUpdate(Connection conn, List<String> SQLStatements){
-        Statement stmt = null;
-        try {
-            stmt = conn.createStatement();
-
-            // Disable autocommit
-            conn.setAutoCommit(false);
-
-            for (String SQLStatement : SQLStatements) {
-                stmt.addBatch(SQLStatement);
-            }
-
-            stmt.executeBatch();
-            conn.commit();
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            try {
-                conn.rollback();
-            }
-            catch(SQLException ex){
-                ex.printStackTrace();
-                throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
-            }
-            throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
-        }
-        finally{
-            // stmt should have been closed in stmtExecuteBatch
-            if(stmt != null){
-                try{
-                    stmt.close();
-                }
-                catch(SQLException e){
-                    e.printStackTrace();
-                    throw new RuntimeException(
-                            "javalibs.DBUtils.executeBatchUpdate failure"
-                    );
-                }
-            }
-            try {
-                if (!conn.getAutoCommit())
-                    conn.setAutoCommit(true);
-            }
-            catch(SQLException ex){
-                ex.printStackTrace();
-                throw new RuntimeException("javalibs.DBUtils.executeBatchUpdate failure");
-            }
-        }
-    }
-
-    /*
-        ** NO JAVADOC **
-        * Executes a single insert / delete / update. Manages connection object.
-     */
-    private void executeGenericUpdate(String db, String dbURL, String dbDriverClassName,
-                                      String SQLStatement, boolean enforeceForeignKeys){
-        Connection conn = connect(db, dbURL, dbDriverClassName, enforeceForeignKeys);
-        executeGenericUpdate(conn, SQLStatement);
-        try{
-            conn.close();
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            throw new RuntimeException("javalibs.DBUtils.executeGenericUpdate failure");
-        }
-    }
-
-    /*
-        ** NO JAVADOC **
-        * Executes a single insert / delete / update operation
-     */
-    private void executeGenericUpdate(Connection conn, String SQLStatement){
-        Statement stmt = null;
-        try{
-            stmt = conn.createStatement();
-            stmt.setQueryTimeout(QUERY_TIMEOUT);
-            stmt.executeUpdate(SQLStatement);
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            throw new RuntimeException(
-                    "javalibs.DBUtils.executeGenericUpdate failure for: " + SQLStatement
-            );
-        }
-        finally{
-            if(stmt != null) {
-                try {
-                    stmt.close();
-                }
-                catch(SQLException e){
-                    e.printStackTrace();
-                    throw new RuntimeException(
-                            "javalibs.DBUtils.executeGenericUpdate failure"
-                    );
-                }
-            }
-        }
+        return dbq.selectAll(conn, SQLStatements);
     }
 }

@@ -25,43 +25,14 @@ public class SerializationHelper {
         File tst = new File(path);
         Logic.get().require(tst.exists() && tst.isFile());
 
-        // Create a generic Object that will hold the deserialized object
-        T deserializedObject = null;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        try{
-            fis = new FileInputStream(path);
-            ois = new ObjectInputStream(fis);
-
-            // Read it with the proper cast
-            deserializedObject = type.cast(ois.readObject());
+        try(FileInputStream fis = new FileInputStream(path);
+            ObjectInputStream ois = new ObjectInputStream(fis)){
+            return type.cast(ois.readObject());
         }
-        // IOException or ClassNotFoundException, either way handled the same
         catch(IOException | ClassNotFoundException e){
             TSL.get().exception(e);
-            TSL.get().autoLog("Deserialization failure");
+            throw new RuntimeException("Deserialization failure: " + path, e);
         }
-        finally{
-            if(fis != null){
-                try {
-                    fis.close();
-                }
-                catch(IOException e){
-                    TSL.get().exception(e);
-                    TSL.get().autoLog("FileInputStream failed to close");
-                }
-            }
-            if(ois != null){
-                try{
-                    ois.close();
-                }
-                catch(IOException e){
-                    TSL.get().exception(e);
-                    TSL.get().autoLog("ObjectInputStream failed to close");
-                }
-            }
-        }
-        return deserializedObject;
     }
 
     /**
@@ -77,40 +48,14 @@ public class SerializationHelper {
                                        String fileName){
         // Make sure the directory exists
         FileUtils.get().checkAndCreateDir(dirPath);
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
         String fullPath = dirPath + fileName;
-        try{
-            fos = new FileOutputStream(fullPath);
-            oos = new ObjectOutputStream(fos);
-
+        try(FileOutputStream fos = new FileOutputStream(fullPath);
+            ObjectOutputStream oos = new ObjectOutputStream(fos)){
             oos.writeObject(type.cast(obj));
-
-            oos.close();
-            fos.close();
         }
         catch(IOException e){
             TSL.get().exception(e);
-        }
-        finally{
-            if(oos != null) {
-                try {
-                    oos.close();
-                }
-                catch(IOException ex){
-                    TSL.get().exception(ex);
-                    TSL.get().autoLog("ObjectOutputStream failed to close");
-                }
-            }
-            if(fos != null) {
-                try{
-                    fos.close();
-                }
-                catch(IOException ex){
-                    TSL.get().exception(ex);
-                    TSL.get().autoLog("FileOutputStream failed to close");
-                }
-            }
+            throw new UncheckedIOException(e);
         }
         return fullPath;
     }

@@ -13,40 +13,33 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("WeakerAccess")
 public class NumUtils {
+
     /**
-     * Returns null on fail to parse
-     * @param aNumberIHope
-     * @return The double or null
+     * Parse a double from a string
+     * @param aNumberIHope The string to parse
+     * @return The double value, or null if parsing fails
      */
     public static Double getDoubleFromStr(String aNumberIHope) {
-        double val = 0;
         try {
-            val = Double.parseDouble(aNumberIHope);
+            return Double.parseDouble(aNumberIHope);
         }
         catch(NumberFormatException e){
-            //TSL.get().exception(e);
-            //TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
             return null;
         }
-        return val;
     }
 
     /**
-     * Returns null on fail to parse
-     * @param aNumberIHope
-     * @return The long or null on failure
+     * Parse a long from a string
+     * @param aNumberIHope The string to parse
+     * @return The long value, or null if parsing fails
      */
     public static Long getLongFromStr(String aNumberIHope) {
-        long val = 0;
-        try{
-            val = Long.parseLong(aNumberIHope);
+        try {
+            return Long.parseLong(aNumberIHope);
         }
         catch(NumberFormatException e){
-            //TSL.get().exception(e);
-            //TSL.get().autoLog("aNumberIHope: " + aNumberIHope);
             return null;
         }
-        return val;
     }
 
     public static int randomBoundedInclusiveInt(int start, int end) {
@@ -57,23 +50,31 @@ public class NumUtils {
         return ThreadLocalRandom.current().nextDouble(start, end);
     }
 
-    public static List<Integer> RandomizedList0toExclusiveNWithoutRepeats(int exclusiveEnd) {
-        List<Integer> numList = new ArrayList();
-        List<Integer> randList = new ArrayList();
+    public static List<Integer> randomizedList0ToExclusiveNWithoutRepeats(int exclusiveEnd) {
+        List<Integer> numList = new ArrayList<>();
+        List<Integer> randList = new ArrayList<>();
         for(int i = 0; i < exclusiveEnd; ++i) numList.add(i);
         int end = numList.size() - 1;
         while(end >= 0) {
             int rand = end > 0 ? ThreadLocalRandom.current().nextInt(end) : 0;
-            // Get a random element from the numbers list
             randList.add(numList.get(rand));
-            // Overwrite the element with the end of the numbers list and reduce list size
             numList.set(rand, numList.get(end));
             --end;
         }
         return randList;
     }
 
+    /**
+     * Normalize a value to the range [0, 1]
+     * @param min The minimum value of the range
+     * @param max The maximum value of the range
+     * @param val The value to normalize
+     * @return The normalized value between 0 and 1
+     * @throws IllegalArgumentException if min == max
+     */
     public static double normalizeBetweenZeroOne(double min, double max, double val) {
+        if(Double.compare(min, max) == 0)
+            throw new IllegalArgumentException("min and max must not be equal");
         return (val - min) / (max - min);
     }
 }

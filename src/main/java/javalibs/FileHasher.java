@@ -1,8 +1,9 @@
 package javalibs;
 
 import java.io.FileInputStream;
-import java.math.BigInteger;
+import java.io.IOException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Sean Grimes, sean@seanpgrimes.com
@@ -10,35 +11,50 @@ import java.security.MessageDigest;
  */
 @SuppressWarnings("unused")
 public class FileHasher{
-    public String hash(String file_path){
-        String hash_str = null;
-        try{
-            FileInputStream fis = new FileInputStream(file_path);
+    private static volatile FileHasher _instance;
+    private final TSL log = TSL.get();
+
+    private FileHasher(){}
+
+    public static FileHasher get(){
+        if(_instance == null){
+            synchronized(FileHasher.class){
+                if(_instance == null){
+                    _instance = new FileHasher();
+                }
+            }
+        }
+        return _instance;
+    }
+
+    public String hash(String filePath){
+        try(FileInputStream fis = new FileInputStream(filePath)){
+            // MD5 is guaranteed by the JVM spec, NoSuchAlgorithmException will never throw
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] buffer = new byte[8192];
 
-            int num_bytes_read;
-
-            while((num_bytes_read = fis.read(buffer)) > 0){
-                md.update(buffer, 0, num_bytes_read);
+            int numBytesRead;
+            while((numBytesRead = fis.read(buffer)) > 0){
+                md.update(buffer, 0, numBytesRead);
             }
 
-            byte[] hash = md.digest();
-
-            hash_str = new BigInteger(1, hash).toString(16);
+            // %032x ensures leading zeros are preserved in the output string
+            return String.format("%032x", new java.math.BigInteger(1, md.digest()));
         }
-        catch(Exception e){
-            TSL.get().exception(e);
+        catch(IOException e){
+            log.exception(e);
+            throw new java.io.UncheckedIOException(e);
         }
-
-        return hash_str;
+        catch(NoSuchAlgorithmException e){
+            throw new RuntimeException("MD5 not available", e);
+        }
     }
 
-    public void printHash(String file_path){
-        System.out.println(file_path+": "+hash(file_path));
+    public void printHash(String filePath){
+        Out.get().writeln(filePath + ": " + hash(filePath));
     }
 
-    public void logHash(String file_path){
-        TSL.get().info(file_path+": "+hash(file_path));
+    public void logHash(String filePath){
+        log.info(filePath + ": " + hash(filePath));
     }
 }

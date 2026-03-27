@@ -10,22 +10,22 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class NetworkUtils {
-    private static volatile NetworkUtils instance_;
-    public String BAD_NETWORK_ATEMPT = "NETWORK_TIMEOUT";
-    private TSL log = TSL.get();
-    private Logic logic = Logic.get();
+    private static volatile NetworkUtils _instance;
+    public static final String BAD_NETWORK_ATTEMPT = "NETWORK_TIMEOUT";
+    private final TSL log = TSL.get();
+    private final Logic logic = Logic.get();
 
     private NetworkUtils() { }
 
     public static NetworkUtils get() {
-        if(instance_ == null) {
+        if(_instance == null) {
             synchronized (NetworkUtils.class) {
-                if(instance_ == null) {
-                    instance_ = new NetworkUtils();
+                if(_instance == null) {
+                    _instance = new NetworkUtils();
                 }
             }
         }
-        return instance_;
+        return _instance;
     }
 
     /**
@@ -35,14 +35,10 @@ public class NetworkUtils {
      * @param message The message to send to the host, must not be null
      */
     public void writeWithoutResponse(String host, int port, String message) {
-        Socket sock = null;
-        DataOutputStream writer = null;
-
         logic.require(message != null);
 
-        try{
-            sock = new Socket(host, port);
-            writer = new DataOutputStream(sock.getOutputStream());
+        try(Socket sock = new Socket(host, port);
+            DataOutputStream writer = new DataOutputStream(sock.getOutputStream())){
             writer.writeBytes(message + "\n");
             writer.flush();
         }
@@ -50,36 +46,17 @@ public class NetworkUtils {
             log.err("Unable to write to " + host);
             log.exception(e);
         }
-        finally {
-            if(writer != null){
-                try {
-                    writer.close();
-                }
-                catch(IOException e){
-                    log.exception(e);
-                }
-            }
-            if(sock != null){
-                try{
-                    sock.close();
-                }
-                catch(IOException e){
-                    log.exception(e);
-                }
-            }
-        }
     }
 
     /**
      * Attempts to ping a host on a specific port with a specific timeout
      * @param host The host to ping
      * @param port The port on the host
-     * @param timeout How long to wait for a successful ping
+     * @param timeout How long to wait for a successful ping, in milliseconds
      * @return True if the host responds, else false
      */
     public boolean pingHost(String host, int port, int timeout){
-        try{
-            Socket sock = new Socket();
+        try(Socket sock = new Socket()){
             sock.connect(new InetSocketAddress(host, port), timeout);
             log.trace(host + " appears to be up.");
             return true;
@@ -91,61 +68,43 @@ public class NetworkUtils {
     }
 
     /**
-     * Attempts to ping a web server on port 80 with timeout of 1000ms
-     * @param host
-     * @return True is host respondes, else false
+     * Attempts to ping a web server on port 80 with a timeout of 1000ms
+     * @param host The host to ping
+     * @return True if host responds, else false
      */
     public boolean pingWebHost(String host) {
         return pingHost(host, 80, 1000);
     }
 
     /**
-     * Send an error message to a host + port to be logged, probably, by that host
-     * @param errorMsg The error messae to be sent
+     * Send an error message to a host + port to be logged by that host
+     * @param errorMsg The error message to be sent
      * @return True if server acknowledges error, else false
      */
     public boolean reportError(String errorMsg){
-        logic.dieFrom("Not yet implemented");
-        return false;
+        throw new UnsupportedOperationException("reportError is not yet implemented");
     }
 
     /**
      * Get the external IP address when available
-     * @return The external IP address if available else NETWORK_UNAVAILABLE
+     * @return The external IP address if available, else BAD_NETWORK_ATTEMPT
      */
     public String externalIPAddr() {
-        URL ipChecker = null;
-        BufferedReader in = null;
-        String ip = null;
-        URLConnection urlConn;
         int timeoutMillis = 2500;
-        String awesomeIPGetterWebsiteThanksForTheHelp = "http://whatismyip.akamai.com/";
-        try {
-            ipChecker = new URL(awesomeIPGetterWebsiteThanksForTheHelp);
-            urlConn = ipChecker.openConnection();
+        String ipServiceURL = "http://whatismyip.akamai.com/";
+        try{
+            URL ipChecker = new URL(ipServiceURL);
+            URLConnection urlConn = ipChecker.openConnection();
             urlConn.setConnectTimeout(timeoutMillis);
-            in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-            ip = in.readLine();
-        }
-        catch (Exception e) {
-            log.exception(e);
-            return BAD_NETWORK_ATEMPT;
-        }
-        finally {
-            if(in != null) {
-                try {
-                    in.close();
-                }
-                catch(IOException e){
-                    log.exception(e);
-                }
+            try(BufferedReader in = new BufferedReader(
+                    new InputStreamReader(urlConn.getInputStream()))){
+                String ip = in.readLine();
+                return ip != null ? ip : BAD_NETWORK_ATTEMPT;
             }
         }
-
-        if(ip == null){
-            return BAD_NETWORK_ATEMPT;
+        catch(Exception e){
+            log.exception(e);
+            return BAD_NETWORK_ATTEMPT;
         }
-
-        return ip;
     }
 }

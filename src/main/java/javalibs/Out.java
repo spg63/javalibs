@@ -10,12 +10,8 @@ import com.google.common.base.Stopwatch;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author Sean Grimes, spg63@cs.drexel.edu
- * @since 6/1/15
- */
 @SuppressWarnings({"unused", "SpellCheckingInspection", "WeakerAccess"})
-public class Out implements java.io.Serializable{
+public class Out {
     private static final long serialVersionUID = 80085L;
     private static volatile Out _instance;
 
@@ -39,7 +35,7 @@ public class Out implements java.io.Serializable{
         System.out.print(msg);
     }
     public void writef(String format, Object... args){
-        System.out.print(String.format(format, args));
+        System.out.printf(format, args);
     }
     public void writeln_err(Object msg){
         System.err.println(msg);

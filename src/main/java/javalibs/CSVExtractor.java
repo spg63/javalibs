@@ -4,7 +4,6 @@ package javalibs;
  * @author Sean Grimes, sean@seanpgrimes.com
  * @since 1/1/19
  * License: MIT License
- * 
  */
 
 import org.apache.commons.csv.CSVFormat;
@@ -17,23 +16,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
 public class CSVExtractor {
-    private TSL log_ = TSL.get();
-    private Logic logic = Logic.get();
+    private final TSL log = TSL.get();
+    private final Logic logic = Logic.get();
     private String inCSV;
     private String outCSV;
     private List<String> extractionCols;
     private String[] orderedExtractionCols;
-    private List<String> allHeadersInOrderFor2ndCtor;
     private Map<String, Integer> rawHeaders;
     private int numInputCols = 0;
     private List<CSVRecord> inRecords = new ArrayList<>();
     private Map<Integer, String> orderedHeadersMap = new HashMap<>();
     private String[] headersInOrder;
-
 
     /**
      * C'tor used when extracting specific columns from a csv file and writing them to
@@ -61,59 +58,33 @@ public class CSVExtractor {
         readCSV();
     }
 
-
     /**
-     * Writes the CSV to the path specified in the c'tor. Returns the absolute path to
-     * the output CSV file
+     * Writes the CSV to the path specified in the c'tor.
      * @return The absolute path to the output CSV file
      */
     public String writeCSV(){
-        BufferedWriter bw = null;
-        CSVPrinter printer = null;
-
         logic.require(this.outCSV != null, "Cannot write, null output file");
-
-        try{
-            bw = Files.newBufferedWriter(Paths.get(this.outCSV));
-            printer = new CSVPrinter(bw, CSVFormat.DEFAULT
-                                    .withHeader(this.orderedExtractionCols));
-        }
-        catch(IOException e){
-            log_.die(e);
-        }
-
-        logic.require(bw != null, "BufferedWriter cannot be null");
-        logic.require(printer != null, "CSVPrinter cannot be null");
-
-        for(CSVRecord rec: this.inRecords){
-            List<String> writerCells = new ArrayList<>();
-            for(String col: this.headersInOrder){
-                if(!this.extractionCols.contains(col))
-                    continue;
-
-                String colVal = null;
-                try{
-                    colVal = rec.get(col);
+        try(BufferedWriter bw = Files.newBufferedWriter(Paths.get(this.outCSV));
+            CSVPrinter printer = new CSVPrinter(bw,
+                    CSVFormat.DEFAULT.withHeader(this.orderedExtractionCols))){
+            for(CSVRecord rec : this.inRecords){
+                List<String> writerCells = new ArrayList<>();
+                for(String col : this.headersInOrder){
+                    if(!this.extractionCols.contains(col)) continue;
+                    try{
+                        writerCells.add(rec.get(col));
+                    }
+                    catch(IllegalArgumentException e){
+                        log.die(e, "Could not find column: " + col);
+                    }
                 }
-                catch(IllegalArgumentException e){
-                    log_.die(e, "Could not find column: " + col);
-                }
-                writerCells.add(colVal);
-            }
-            try {
                 printer.printRecord(writerCells.toArray());
             }
-            catch(IOException e){
-                log_.die(e);
-            }
-        }
-        try{
             printer.flush();
         }
         catch(IOException e){
-            log_.die(e);
+            log.die(e);
         }
-
         return new File(this.outCSV).getAbsolutePath();
     }
 
@@ -131,167 +102,84 @@ public class CSVExtractor {
      */
     public List<CSVRecord> getRecords() { return this.inRecords; }
 
+    // -------------------------------------------------------------------------
+    // Deprecated static methods — use CSVUtils for new code
+    // -------------------------------------------------------------------------
+
     /**
-     * Read a CSV file and return a list of records representing each row in the CSV
-     * NOTE: This does not handle anything but plain CSV files with default formatting
-     * @param csvPath The path to the CSV file
-     * @return The list of CSVRecord objects
+     * @deprecated Use {@link CSVUtils#getCSVRecords}
      */
+    @Deprecated
     public static List<CSVRecord> getCSVRecords(String csvPath) {
-        CSVParser parser = null;
-        List<CSVRecord> records = null;
-        try{
-            parser = new CSVParser(
-                    Files.newBufferedReader(Paths.get(csvPath)),
-                    CSVFormat.DEFAULT
-                    .withHeader()
-                    .withIgnoreHeaderCase()
-                    .withTrim()
-            );
-            records = parser.getRecords();
-        }
-        catch(IOException e){
-            TSL.get().exception(e);
-        }
-        return records;
+        return CSVUtils.getCSVRecords(csvPath);
     }
 
     /**
-     * Write a single CSV record to a CSV file
-     * @param path The path to save the CSV file
-     * @param rec The record to be written
-     * @param headers Headers for the CSV. If this value is null there will be no
-     *                headers added to the CSV
+     * @deprecated Use {@link CSVUtils#writeCSVRecord}
      */
+    @Deprecated
     public static void writeCSVRecord(String path, CSVRecord rec, String[] headers) {
-        BufferedWriter bw = null;
-        CSVPrinter printer = null;
-        try{
-            bw = Files.newBufferedWriter(Paths.get(path));
-            if(headers != null)
-                printer = new CSVPrinter(bw, CSVFormat.DEFAULT.withHeader(headers));
-            else
-                printer = new CSVPrinter(bw, CSVFormat.DEFAULT);
-        }
-        catch(IOException e){
-            TSL.get().exception(e);
-        }
-
-        Logic.get().require(bw != null, "BufferedWriter cannot be null");
-        Logic.get().require(printer != null, "CSVPrinter cannot be null");
-
-        try {
-            printer.printRecord(rec);
-            printer.flush();
-        }
-        catch(IOException e){
-            TSL.get().exception(e);
-        }
+        CSVUtils.writeCSVRecord(path, rec, headers);
     }
 
+    /**
+     * @deprecated Use {@link CSVUtils#appendRecord}
+     */
+    @Deprecated
     public static void appendRecord(String path, List<String> row, String[] headers) {
-        BufferedWriter bw = null;
-        CSVPrinter printer = null;
-        CSVFormat csvFormat = null;
-        if(headers != null) {
-            // Only write the header if the file doesn't already exist
-            csvFormat =
-                    CSVFormat.DEFAULT
-                            .withHeader(headers)
-                            .withSkipHeaderRecord(FileUtils.get().fexists(path));
-        }
-        else {
-            csvFormat = CSVFormat.DEFAULT;
-        }
-
-        try{
-            bw = Files.newBufferedWriter(
-                    Paths.get(path),
-                    StandardOpenOption.APPEND,
-                    StandardOpenOption.CREATE
-            );
-            printer = new CSVPrinter(bw, csvFormat);
-        }
-        catch(IOException e){
-            TSL.get().exception(e);
-        }
-
-        Logic.get().require(bw != null, "BufferedWriter cannot be null");
-        Logic.get().require(printer != null, "CSVPrinter cannot be null");
-
-        try {
-            printer.printRecord(row);
-            printer.flush();
-        }
-        catch(IOException e) {
-            TSL.get().exception(e);
-        }
-
+        CSVUtils.appendRecord(path, row, headers);
     }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
 
     private void readCSV(){
-        try{
-            CSVParser parser = new CSVParser(
-                    Files.newBufferedReader(Paths.get(this.inCSV)),
-                    CSVFormat.DEFAULT
-                    .withHeader()
-                    .withIgnoreHeaderCase()
-                    .withTrim()
-            );
-
-            // Get all headers
+        try(CSVParser parser = new CSVParser(
+                Files.newBufferedReader(Paths.get(this.inCSV)),
+                CSVFormat.DEFAULT
+                        .withHeader()
+                        .withIgnoreHeaderCase()
+                        .withTrim())){
             this.rawHeaders = parser.getHeaderMap();
-
-            // Store the inRecords
             this.inRecords = parser.getRecords();
-            parser.close();
-
-            //orderExtractionHeaders(this.rawHeaders);
         }
         catch(IOException e){
-            log_.die(e);
+            log.die(e);
         }
     }
 
     private List<String> orderAllHeaders(Map<String, Integer> oooHeaders) {
         Map<Integer, String> headersMap = new HashMap<>();
-        int numCols = 0;
-        for(String col: oooHeaders.keySet()) {
-            headersMap.put(oooHeaders.get(col), col);
-            ++numCols;
+        for(Map.Entry<String, Integer> entry : oooHeaders.entrySet()){
+            headersMap.put(entry.getValue(), entry.getKey());
         }
-
-        // Put all headers in order
-        String[] orderedHeaders = new String[numCols];
-        for(int i = 0; i < numCols; ++i) {
+        String[] orderedHeaders = new String[headersMap.size()];
+        for(int i = 0; i < orderedHeaders.length; ++i){
             orderedHeaders[i] = headersMap.get(i);
         }
-
         return Arrays.asList(orderedHeaders);
     }
 
     private void orderExtractionHeaders(Map<String, Integer> oooHeaders){
-        for(String col: oooHeaders.keySet()){
-            this.orderedHeadersMap.put(oooHeaders.get(col), col);
+        for(Map.Entry<String, Integer> entry : oooHeaders.entrySet()){
+            this.orderedHeadersMap.put(entry.getValue(), entry.getKey());
             ++this.numInputCols;
         }
 
-        // Put *all* headers in order
         this.headersInOrder = new String[this.numInputCols];
         for(int i = 0; i < this.numInputCols; ++i)
             this.headersInOrder[i] = this.orderedHeadersMap.get(i);
 
-        // Put all of the extraction headers in order. One would assume a user passes
-        // the columns in order as they appear in the CSV. One would be wrong.
+        // Put extraction headers in order as they appear in the CSV.
+        // One would assume a user passes the columns in order. One would be wrong.
         this.orderedExtractionCols = new String[this.extractionCols.size()];
-
         int cnt = 0;
-        for(String col: this.headersInOrder){
-            if(this.extractionCols.contains(col)) {
+        for(String col : this.headersInOrder){
+            if(this.extractionCols.contains(col)){
                 this.orderedExtractionCols[cnt] = col;
                 ++cnt;
             }
         }
     }
 }
-

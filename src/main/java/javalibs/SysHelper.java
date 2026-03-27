@@ -47,26 +47,22 @@ public class SysHelper {
 
     private SysHelper(){
         this.log = TSL.get();
-        this.si = new SystemInfo();
-
-        this.os = si.getOperatingSystem();
-        this.hal = si.getHardware();
-
-        // If Oshi fails for any reason we'll try running in a fallback mode with
-        // limited information available
-        if(this.si == null || this.os == null || this.hal == null) {
-            this.oshiOkay = false;
-            log.warn("Ohsi failed to initialize properly, SysHelper in fallback mode");
+        try {
+            this.si = new SystemInfo();
+            this.os = si.getOperatingSystem();
+            this.hal = si.getHardware();
+            log.trace("Oshi initialized properly");
         }
-        else{
-            log.trace("Ohsi initialized properly");
+        catch(Exception e) {
+            this.oshiOkay = false;
+            log.warn("Oshi failed to initialize properly, SysHelper in fallback mode");
         }
 
         if(this.oshiOkay) {
             this.osFullInfo = this.os.getVersionInfo();
             if (this.osFullInfo != null) {
                 this.osInfoAvailable = true;
-                log.trace("Ohsi full OS information available");
+                log.trace("Oshi full OS information available");
             }
             else
                 log.warn("Oshi unable to initialize full OS information");
@@ -76,7 +72,9 @@ public class SysHelper {
     public static SysHelper get(){
         if(_instance == null){
             synchronized (SysHelper.class){
-                _instance = new SysHelper();
+                if(_instance == null){
+                    _instance = new SysHelper();
+                }
             }
         }
         return _instance;
@@ -90,7 +88,7 @@ public class SysHelper {
         if(osInfoAvailable)
             return os.getFamily();
         log.info("Oshi osName unavailable, returning System Property os.name");
-        return sysPropertyImlp("os.name");
+        return sysPropertyImpl("os.name");
     }
 
     /**
@@ -102,7 +100,7 @@ public class SysHelper {
         if(osInfoAvailable)
             return this.osFullInfo.toString();
         log.warn("Oshi osVersionFullInfo unavailable, returning os.name");
-        return sysPropertyImlp("os.name");
+        return sysPropertyImpl("os.name");
     }
 
     /**
@@ -212,7 +210,7 @@ public class SysHelper {
     public String hostName() {
         if(oshiOkay)
             return os.getNetworkParams().getHostName();
-        log.warn("hostname unavailale");
+        log.warn("hostname unavailable");
         return "";
     }
 
@@ -365,7 +363,7 @@ public class SysHelper {
     private PowerSource findValidBattery() {
         if(!oshiOkay) return null;
         List<PowerSource> pss = hal.getPowerSources();
-        if(pss == null || pss.size() <= 0) return null;
+        if(pss == null || pss.isEmpty()) return null;
 
         for(PowerSource ps : pss){
             // If any of these are true then oshi almost certainly found a battery
@@ -382,33 +380,33 @@ public class SysHelper {
      * Get the user's username
      * @return The username of the user
      */
-    public String userName() { return sysPropertyImlp("user.name"); }
+    public String userName() { return sysPropertyImpl("user.name"); }
 
     /**
      * Get the user's home directory
      * @return The path of the user's home directory
      */
-    public String userHome() { return sysPropertyImlp("user.home"); }
+    public String userHome() { return sysPropertyImpl("user.home"); }
 
     /**
      * Get the current working directory
      * @return Path of the current working directory
      */
-    public String userWorking() { return sysPropertyImlp("user.dir"); }
+    public String userWorking() { return sysPropertyImpl("user.dir"); }
 
     /**
      * Get the version of the running JVM
      * @return JVM version
      */
-    public String javaVer() { return sysPropertyImlp("java.version"); }
+    public String javaVer() { return sysPropertyImpl("java.version"); }
 
     /**
      * Get the vendor of the JVM
      * @return JVM vendor string
      */
-    public String JVMVendor() { return sysPropertyImlp("java.vendor"); }
+    public String JVMVendor() { return sysPropertyImpl("java.vendor"); }
 
-    private String sysPropertyImlp(String key) { return System.getProperty(key); }
+    private String sysPropertyImpl(String key) { return System.getProperty(key); }
 
     /**
      * Returns the max available memory as reported by the Runtime
@@ -465,6 +463,7 @@ public class SysHelper {
      */
     public String rootTotalSpace() {
         File[] roots = File.listRoots();
+        if(roots == null || roots.length == 0) return "Root partition information unavailable";
         return appropriateSizeUnit(roots[0].getTotalSpace());
     }
 
@@ -475,6 +474,7 @@ public class SysHelper {
      */
     public String rootFreeSpace(){
         File[] roots = File.listRoots();
+        if(roots == null || roots.length == 0) return "Root partition information unavailable";
         return appropriateSizeUnit(roots[0].getUsableSpace());
     }
 }

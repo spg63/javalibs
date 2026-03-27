@@ -1,9 +1,10 @@
 package javalibs;
 
 public class Logic {
-    private TSL log_ = TSL.get();
-    public static boolean ALLOW_REQUIRE = true;
+    public static volatile boolean ALLOW_REQUIRE = true;
     private static volatile Logic _instance;
+    private final TSL log = TSL.get();
+
     private Logic() { }
 
     public static Logic get() {
@@ -24,9 +25,9 @@ public class Logic {
      * @param trueToLive True or false, false dies
      * @param msg Additional log message
      */
-    public void require(Boolean trueToLive, Object msg) {
+    public void require(boolean trueToLive, Object msg) {
         if(!ALLOW_REQUIRE || trueToLive) return;
-        log_.die(log_.getStackInfo(msg));
+        log.die(log.getStackInfo(msg));
     }
 
     /**
@@ -35,9 +36,9 @@ public class Logic {
      * Essentially the info from an exception while also letting the logger die properly
      * @param trueToLive If false, kills program
      */
-    public void require(Boolean trueToLive) {
+    public void require(boolean trueToLive) {
         if(!ALLOW_REQUIRE || trueToLive) return;
-        log_.die(log_.getStackInfo(""));
+        log.die(log.getStackInfo(""));
     }
 
     /**
@@ -45,6 +46,6 @@ public class Logic {
      * @param msg Message to be logged
      */
     public void dieFrom(Object msg) {
-        log_.die(log_.getStackInfo(msg));
+        log.die(log.getStackInfo(msg));
     }
 }

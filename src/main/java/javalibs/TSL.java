@@ -355,7 +355,7 @@ public class TSL extends Thread{
     }
 
     /**
-     * javalibs.Log an exception
+ * Log an exception
      * @param e The exception to be logged
      */
     public void exception(Exception e){

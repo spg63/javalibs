@@ -23,11 +23,12 @@ import com.google.common.collect.EvictingQueue;
  * or an empty string (to move the circular buffer forward).
  */
 public class MTOut {
+    private static final int BUFFER_SIZE = 64;
     private static volatile MTOut _instance;
-    private TSL log_ = TSL.get();
-    private MTOut(){}
+    private final TSL log = TSL.get();
+    private final EvictingQueue<String> buffer = EvictingQueue.create(BUFFER_SIZE);
 
-    private EvictingQueue<String> buffer = EvictingQueue.create(30);
+    private MTOut(){}
 
     public static MTOut get(){
         if(_instance == null){
@@ -40,76 +41,72 @@ public class MTOut {
         return _instance;
     }
 
-    // Stupid: If msg == previous, return
     public void writeln(String msg){
-        synchronized (MTOut.class){
+        synchronized (this){
             if(inBuffer(msg)) return;
             Out.get().writeln(msg);
         }
     }
 
     public void write(String msg){
-        synchronized (MTOut.class){
+        synchronized (this){
             if(inBuffer(msg)) return;
             Out.get().write(msg);
         }
     }
 
     public void info(String msg){
-        synchronized (MTOut.class) {
+        synchronized (this) {
             if(inBuffer(msg)) return;
-            log_.info(msg);
+            log.info(msg);
         }
     }
 
     public void results(String msg){
-        synchronized (MTOut.class) {
+        synchronized (this) {
             if(inBuffer(msg)) return;
-            log_.results(msg);
+            log.results(msg);
         }
     }
 
     public void swarm(String msg) {
-        synchronized (MTOut.class) {
+        synchronized (this) {
             if(inBuffer(msg)) return;
-            log_.swarm(msg);
+            log.swarm(msg);
         }
     }
 
     public void debug(String msg){
-        synchronized (MTOut.class){
+        synchronized (this){
             if(inBuffer(msg)) return;
-            log_.debug(msg);
+            log.debug(msg);
         }
     }
 
     public void trace(String msg){
-        synchronized (MTOut.class){
+        synchronized (this){
             if(inBuffer(msg)) return;
-            log_.trace(msg);
+            log.trace(msg);
         }
     }
 
     public void warn(String msg){
-        synchronized (MTOut.class) {
+        synchronized (this) {
             if(inBuffer(msg)) return;
-            log_.warn(msg);
+            log.warn(msg);
         }
     }
 
     public void err(String msg){
-        synchronized (MTOut.class) {
+        synchronized (this) {
             if(inBuffer(msg)) return;
-            log_.err(msg);
+            log.err(msg);
         }
     }
 
     private boolean inBuffer(String msg) {
-        if(buffer.contains(msg)){
-            buffer.add(msg);
-            return true;
-        }
+        boolean found = buffer.contains(msg);
         buffer.add(msg);
-        return false;
+        return found;
     }
 }
